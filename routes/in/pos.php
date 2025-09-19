@@ -1,0 +1,43 @@
+<?php
+
+use App\Livewire\Admin\Pos\PosInterface;
+use App\Livewire\Admin\Pos\SalesList;
+use App\Livewire\Admin\Pos\SalesManager;
+use Illuminate\Support\Facades\Route;
+
+// Routes POS (Point of Sale)
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::prefix('pos')->name('pos.')->group(function () {
+        // Interface principale POS
+        Route::get('/interface', PosInterface::class)->name('interface');
+        Route::get('/', SalesManager::class)->name('sales');
+
+        Route::get('/checkout', \App\Livewire\Admin\Checkout\CheckoutPage::class)->name('checkout');
+        
+        // Historique des ventes
+        //Route::get('/sales', SalesList::class)->name('sales');
+        
+        // Impression de reçu
+        /* Route::get('/receipt/{sale}', function (Sale $sale) {
+            return view('pos.receipt', compact('sale'));
+        })->name('receipt'); */
+        
+        // Export des ventes
+        Route::get('/export', function () {
+            // Logique d'export CSV/PDF
+            return redirect()->route('pos.sales')->with('message', 'Export en cours...');
+        })->name('export');
+        
+        // API endpoints pour scanner de code-barres
+        /* Route::post('/scan', function (Request $request) {
+            $barcode = $request->input('barcode');
+            $product = Product::where('sku', $barcode)->first();
+            
+            return response()->json([
+                'success' => $product ? true : false,
+                'product' => $product,
+                'message' => $product ? 'Produit trouvé' : 'Produit non trouvé'
+            ]);
+        })->name('scan'); */
+    });
+});
