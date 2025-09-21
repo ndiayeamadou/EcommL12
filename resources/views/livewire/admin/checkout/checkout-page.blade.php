@@ -142,7 +142,7 @@
                     </div>
                     
                     <div class="flex justify-end">
-                        <button @click="currentStep = 2" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center shadow-sm hover:shadow-md">
+                        <button @click="currentStep = 2" class="cursor-pointer bg-purple-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center shadow-sm hover:shadow-md">
                             Suivant
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -189,13 +189,13 @@
                     </div>
                     
                     <div class="flex justify-between">
-                        <button @click="currentStep = 1" class="text-gray-600 px-6 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors flex items-center">
+                        <button @click="currentStep = 1" class="cursor-pointer text-gray-600 px-6 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
                             Retour
                         </button>
-                        <button @click="currentStep = 3" class="bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center shadow-sm hover:shadow-md">
+                        <button @click="currentStep = 3" class="cursor-pointer bg-purple-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center shadow-sm hover:shadow-md">
                             Suivant
                             <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -342,7 +342,7 @@
                     @error('termsAccepted') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     
                     <div class="flex justify-between">
-                        <button @click="currentStep = 2" class="text-gray-600 px-6 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors flex items-center">
+                        <button @click="currentStep = 2" class="cursor-pointer text-gray-600 px-6 py-2 rounded-lg font-medium hover:text-gray-800 transition-colors flex items-center">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                             </svg>
@@ -350,9 +350,9 @@
                         </button>
                         <button 
                             wire:click="completeOrder" 
-                            class="bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                            :class="{'opacity-75 cursor-not-allowed': !termsAccepted}"
-                            :disabled="!termsAccepted"
+                            class="cursor-pointer bg-green-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                            :class="{'opacity-75 cursor-not-allowed': !$termsAccepted}"
+                            :disabled="!$termsAccepted"
                         >
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

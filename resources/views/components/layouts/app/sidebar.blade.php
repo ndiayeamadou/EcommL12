@@ -21,6 +21,9 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('admin.categories')" :current="request()->routeIs('admin.categories')" wire:navigate>{{ __('Catégories') }}</flux:navlist.item>
                     <flux:navlist.item icon="home" :href="route('admin.products.index')" :current="request()->routeIs('admin.products.index')" wire:navigate>{{ __('Produits') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('admin.pos.sales')" :current="request()->routeIs('admin.pos.sales')" wire:navigate>{{ __('Point de Vente') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('admin.orders.index')" :current="request()->routeIs('admin.orders.index')" wire:navigate>{{ __('Commandes') }}</flux:navlist.item>
+                    <flux:navlist.item icon="home" :href="route('admin.customers.index')" :current="request()->routeIs('admin.customers.index')" wire:navigate>{{ __('Clients') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 

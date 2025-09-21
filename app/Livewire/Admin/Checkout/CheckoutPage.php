@@ -33,7 +33,7 @@ class CheckoutPage extends Component
     
     // Méthode de paiement
     public $paymentMethod = 'cash';
-    public $termsAccepted = false;
+    public $termsAccepted = true;
     
     // Recherche de client
     public $customerSearch = '';
@@ -47,8 +47,8 @@ class CheckoutPage extends Component
         'phone' => 'required',
         'address' => 'required',
         'city' => 'required',
-        'postalCode' => 'required',
-        'country' => 'required',
+        //'postalCode' => 'required',
+        //'country' => 'required',
         'termsAccepted' => 'accepted',
     ];
     
@@ -60,7 +60,7 @@ class CheckoutPage extends Component
         'phone.required' => 'Le téléphone est obligatoire.',
         'address.required' => 'L\'adresse est obligatoire.',
         'city.required' => 'La ville est obligatoire.',
-        'postalCode.required' => 'Le code postal est obligatoire.',
+        //'postalCode.required' => 'Le code postal est obligatoire.',
         'termsAccepted.accepted' => 'Vous devez accepter les conditions générales.',
     ];
     
@@ -230,7 +230,7 @@ class CheckoutPage extends Component
             $customer = User::create([
                 'firstname' => $this->firstName,
                 'lastname' => $this->lastName,
-                'name' => $this->firstName . ' ' . $this->lastName,
+                //'name' => $this->firstName . ' ' . $this->lastName,
                 'email' => $this->email,
                 'type' => User::TYPE_CUSTOMER,
                 'password' => Hash::make(Str::random(12)),
@@ -265,13 +265,15 @@ class CheckoutPage extends Component
             'status_message' => 'En cours de traitement',
             'payment_mode' => $this->paymentMethod,
             'payment_id' => $this->paymentMethod === 'card' ? 'pay_' . Str::random(10) : null,
+            'agent_id' => Auth::user()->id,
+            'back' => '0',
         ];
         
         // Si un admin passe la commande, enregistrer son ID
-        if ($currentUser && $currentUser->isAdmin()) {
+        /* if ($currentUser && $currentUser->isAdmin()) {
             $orderData['agent_id'] = $currentUser->id;
             $orderData['back'] = 0; // Commande passée depuis le backoffice
-        }
+        } */
         
         $order = Order::create($orderData);
         
@@ -296,15 +298,19 @@ class CheckoutPage extends Component
         }
         
         // Vider le panier (seulement si l'utilisateur actuel est le client)
-        if (Auth::check() && Auth::id() === $customer->id) {
+        /* if (Auth::check() && Auth::id() === $customer->id) {
             Cart::where('user_id', auth()->id())->delete();
-        }
+        } */
+
+        // Vider le panier
+        Cart::where('user_id', auth()->id())->delete();
         
         // Émettre un événement pour mettre à jour le compteur du panier
         $this->dispatch('cart-updated');
         
         // Rediriger vers la page de confirmation
-        return redirect()->route('order.confirmation', $order->id)
+        //return redirect()->route('order.confirmation', $order->id)
+        return redirect()->route('admin.pos.sales')
             ->with('success', 'Votre commande a été passée avec succès!');
     }
     

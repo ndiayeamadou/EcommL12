@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('fullname');
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->string('pincode')->nullable();
+            $table->string('postal_code')->nullable();  // = pincode
             $table->string('address')->nullable();
             $table->string('status_message')->nullable();
             $table->string('payment_mode')->nullable();

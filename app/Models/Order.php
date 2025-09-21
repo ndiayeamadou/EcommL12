@@ -13,11 +13,13 @@ class Order extends Model
         'fullname',
         'phone',
         'email',
-        'pincode',
+        'postal_code',
         'address',
         'status_message',
         'payment_mode',
-        'payment_id'
+        'payment_id',
+        'agent_id',
+        'back'
     ];
 
     public function user () {

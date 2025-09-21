@@ -1,5 +1,7 @@
 <?php
 
+use App\Livewire\Admin\Customers\CustomersManager;
+use App\Livewire\Admin\Orders\OrdersDashboard;
 use App\Livewire\Admin\Pos\PosInterface;
 use App\Livewire\Admin\Pos\SalesList;
 use App\Livewire\Admin\Pos\SalesManager;
@@ -39,5 +41,17 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
                 'message' => $product ? 'Produit trouvé' : 'Produit non trouvé'
             ]);
         })->name('scan'); */
+    });
+
+    /* Commandes - Orders */
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', \App\Livewire\Admin\Orders\OrdersManager::class)->name('index');
+        Route::get('/dashboard', OrdersDashboard::class)->name('dashboard');
+    });
+
+    /* Customers */
+    Route::prefix('customers')->name('customers.')->group(function () {
+        Route::get('/', CustomersManager::class)->name('index');
+        //Route::get('/details', CustomersManager::class)->name('show');
     });
 });
