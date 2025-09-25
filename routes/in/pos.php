@@ -5,6 +5,7 @@ use App\Livewire\Admin\Orders\OrdersDashboard;
 use App\Livewire\Admin\Pos\PosInterface;
 use App\Livewire\Admin\Pos\SalesList;
 use App\Livewire\Admin\Pos\SalesManager;
+use App\Livewire\Admin\Users\AdminUsersManager;
 use Illuminate\Support\Facades\Route;
 
 // Routes POS (Point of Sale)
@@ -53,5 +54,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::prefix('customers')->name('customers.')->group(function () {
         Route::get('/', CustomersManager::class)->name('index');
         //Route::get('/details', CustomersManager::class)->name('show');
+    });
+
+    /* Customers */
+    Route::prefix('users')->name('users.')->group(function () {
+        Route::get('/', AdminUsersManager::class)->name('index');
     });
 });

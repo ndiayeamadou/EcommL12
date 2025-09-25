@@ -39,7 +39,7 @@ class CustomersManager extends Component
     #[Validate('required|string|min:2|max:255')]
     public string $lastname = '';
     
-    #[Validate('required|email|max:255')]
+    #[Validate('nullable|email|max:255')]
     public string $email = '';
     
     #[Validate('nullable|string|max:20')]
@@ -88,7 +88,7 @@ class CustomersManager extends Component
     protected array $rules = [
         'firstname' => 'required|string|min:2|max:255',
         'lastname' => 'required|string|min:2|max:255',
-        'email' => 'required|email|max:255',
+        'email' => 'nullable|email|max:255',
         'username' => 'nullable|string|max:20',
         'gender' => 'nullable|in:male,female',
         'birth_date' => 'nullable|date|before:today',
@@ -105,7 +105,7 @@ class CustomersManager extends Component
         'firstname.min' => 'Le prénom doit contenir au moins 2 caractères.',
         'lastname.required' => 'Le nom est obligatoire.',
         'lastname.min' => 'Le nom doit contenir au moins 2 caractères.',
-        'email.required' => 'L\'adresse email est obligatoire.',
+        //'email.required' => 'L\'adresse email est obligatoire.',
         'email.email' => 'Veuillez saisir une adresse email valide.',
         'email.unique' => 'Cette adresse email est déjà utilisée.',
         'birth_date.before' => 'La date de naissance doit être antérieure à aujourd\'hui.',
@@ -257,7 +257,7 @@ class CustomersManager extends Component
 
     public function createCustomer(): void
     {
-        $this->rules['email'] = 'required|email|max:255|unique:users,email';
+        $this->rules['email'] = 'nullable|email|max:255|unique:users,email';
         $this->rules['username'] = 'nullable|string|max:20|unique:users,username';
         $this->rules['ncin'] = 'nullable|string|max:20|unique:users,ncin';
         
@@ -312,7 +312,7 @@ class CustomersManager extends Component
         }
 
         $this->rules['email'] = [
-            'required',
+            'nullable',
             'email',
             'max:255',
             Rule::unique('users', 'email')->ignore($this->selectedCustomer->id)

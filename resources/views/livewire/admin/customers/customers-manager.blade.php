@@ -10,7 +10,7 @@
             <div class="flex flex-col sm:flex-row gap-3">
                 <button 
                     wire:click="exportCustomers"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    class="cursor-pointer inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -19,7 +19,7 @@
                 
                 <button 
                     wire:click="showCreateCustomer"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -243,19 +243,21 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900">{{ $customer->email }}</div>
+                                <div class="text-sm text-gray-900">{{ $customer->email ?$customer->email : 'non renseigné' }}</div>
                                 @if($customer->username)
                                     <div class="text-xs text-gray-500">@{{ $customer->username }}</div>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="space-y-1">
-                                    @if($customer->detail && $customer->detail->phone)
+                                    {{-- @if($customer->detail && $customer->detail->phone) --}}
+                                    @if($customer->detail)
                                         <div class="text-sm text-gray-900 flex items-center">
                                             <svg class="w-3 h-3 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                                             </svg>
-                                            {{ $customer->detail->phone }}
+                                            {{-- {{ $customer->detail->phone }} --}}
+                                            {{ $customer->detail->phone ? $customer->detail->phone : 'non renseigné' }}
                                         </div>
                                     @endif
                                     @if($customer->detail && $customer->detail->city)
@@ -361,7 +363,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Nouveau Client</h3>
                         <button 
                             wire:click="closeCreateModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -383,7 +385,7 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom(s) <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="firstname"
@@ -392,7 +394,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom  <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="lastname"
@@ -402,7 +404,7 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                                     <input 
                                         type="email" 
                                         wire:model="email"
@@ -517,12 +519,12 @@
                             <button 
                                 type="button"
                                 wire:click="closeCreateModal"
-                                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                                class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                                 Annuler
                             </button>
                             <button 
                                 type="submit"
-                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                class="cursor-pointer px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
@@ -546,7 +548,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Modifier le Client #{{ $selectedCustomer->id }}</h3>
                         <button 
                             wire:click="closeEditModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             {{-- <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
  
@@ -574,7 +576,7 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom(s) <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="firstname"
@@ -583,7 +585,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom  <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="lastname"
@@ -593,7 +595,7 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                                     <input 
                                         type="email" 
                                         wire:model="email"
@@ -707,12 +709,12 @@
                             <button 
                                 type="button"
                                 wire:click="closeEditModal"
-                                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                                class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                                 Annuler
                             </button>
                             <button 
                                 type="submit"
-                                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                class="cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                 </svg>
@@ -735,7 +737,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Profil Client - {{ $selectedCustomer->firstname }} {{ $selectedCustomer->lastname }}</h3>
                         <button 
                             wire:click="closeDetailsModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -993,12 +995,12 @@
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button 
                             wire:click="closeDeleteModal"
-                            class="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                            class="cursor-pointer flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                             Annuler
                         </button>
                         <button 
                             wire:click="deleteCustomer"
-                            class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
+                            class="cursor-pointer flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200">
                             Supprimer
                         </button>
                     </div>

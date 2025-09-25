@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Orders;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
@@ -262,4 +263,42 @@ class OrdersManager extends Component
             'statuses' => $statuses,
         ]);
     }
+
+
+    /* test gen pdf here - 22/09/25 */
+    /* public function generatePDF(): void
+    {
+        try {
+            $data = [
+                'order' => $this->order,
+                'orderTotal' => $this->orderTotal,
+                'totalItems' => $this->totalItems,
+                'generatedAt' => now()->format('d/m/Y à H:i'),
+            ];
+
+            $pdf = Pdf::loadView('pdf.order-invoice', $data)
+                ->setPaper('a4', 'portrait')
+                ->setOptions([
+                    'defaultFont' => 'DejaVu Sans',
+                    'isRemoteEnabled' => true,
+                    'isHtml5ParserEnabled' => true,
+                ]);
+
+            $filename = 'commande-' . $this->order->id . '-' . now()->format('Y-m-d') . '.pdf';
+            
+            return response()->streamDownload(
+                fn () => print($pdf->output()),
+                $filename,
+                ['Content-Type' => 'application/pdf']
+            );
+
+        } catch (\Exception $e) {
+            $this->dispatch('notify', [
+                'text' => 'Erreur lors de la génération PDF: ' . $e->getMessage(),
+                'type' => 'error',
+                'status' => 500
+            ]);
+        }
+    } */
+    
 }
