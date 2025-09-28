@@ -47,6 +47,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     /* Commandes - Orders */
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', \App\Livewire\Admin\Orders\OrdersManager::class)->name('index');
+        Route::get('/{order}/details', \App\Livewire\Admin\Orders\OrderDetails::class)->name('details');
         Route::get('/dashboard', OrdersDashboard::class)->name('dashboard');
     });
 

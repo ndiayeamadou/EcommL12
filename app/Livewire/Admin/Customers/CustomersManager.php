@@ -267,7 +267,6 @@ class CustomersManager extends Component
             $customer = User::create([
                 'firstname' => $this->firstname,
                 'lastname' => $this->lastname,
-                'name' => $this->firstname . ' ' . $this->lastname,
                 'email' => $this->email,
                 'username' => $this->username ?: null,
                 'gender' => $this->gender ?: null,
@@ -338,7 +337,6 @@ class CustomersManager extends Component
             $this->selectedCustomer->update([
                 'firstname' => $this->firstname,
                 'lastname' => $this->lastname,
-                'name' => $this->firstname . ' ' . $this->lastname,
                 'email' => $this->email,
                 'username' => $this->username ?: null,
                 'gender' => $this->gender ?: null,

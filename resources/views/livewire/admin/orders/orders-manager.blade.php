@@ -357,7 +357,8 @@
                         <div>
                             <h3 class="text-xl font-bold text-gray-900">Détails de la Commande #{{ $selectedOrder->id }}</h3>
                             @if($selectedOrder->tracking_no)
-                                <p class="text-sm text-gray-600 mt-1">N° de suivi: {{ $selectedOrder->tracking_no }}</p>
+                                {{-- <p class="text-sm text-gray-600 mt-1">N° de suivi: {{ $selectedOrder->tracking_no }}</p> --}}
+                                <p class="text-sm text-gray-600 mt-1">N° de suivi: <a href="/admin/orders/{{ $selectedOrder->id }}/details">{{ $selectedOrder->tracking_no }}</a></p>
                             @endif
                         </div>
                         <button 

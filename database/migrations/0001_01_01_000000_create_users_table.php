@@ -17,12 +17,13 @@ return new class extends Migration
             $table->string('firstname')->nullable();
             $table->string('lastname')->nullable();
             $table->string('customer_number')->unique()->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->integer('type')->default(0);  // 5=>provider | 3=>admin | 0=>customer
             $table->timestamp('email_verified_at')->nullable();
             $table->string('username')->unique()->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->date('birth_date')->nullable();
+            $table->string('image')->nullable();
             $table->date('ncin')->unique()->nullable();   // N° carte d'identité nationale
             $table->string('password');
             $table->rememberToken();

@@ -212,12 +212,12 @@ class AdminUsersSeeder extends Seeder
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@entreprise.com'],
             [
-                'name' => 'Super Administrateur',
+                //'name' => 'Super Administrateur',
                 'firstname' => 'Super',
                 'lastname' => 'Administrateur',
                 'username' => 'superadmin',
                 'type' => User::TYPE_ADMIN,
-                'password' => Hash::make('SuperAdmin@2024!'),
+                'password' => Hash::make('SuperAdmin@2025!'),
                 'email_verified_at' => now(),
             ]
         );
@@ -264,13 +264,13 @@ class AdminUsersSeeder extends Seeder
             $admin = User::firstOrCreate(
                 ['email' => $adminData['email']],
                 [
-                    'name' => $adminData['firstname'] . ' ' . $adminData['lastname'],
+                    //'name' => $adminData['firstname'] . ' ' . $adminData['lastname'],
                     'firstname' => $adminData['firstname'],
                     'lastname' => $adminData['lastname'],
                     'username' => $adminData['username'],
                     'gender' => $adminData['gender'],
                     'type' => User::TYPE_ADMIN,
-                    'password' => Hash::make('Admin@2024!'),
+                    'password' => Hash::make('Admin@2025!'),
                     'email_verified_at' => now(),
                 ]
             );
@@ -315,13 +315,13 @@ class AdminUsersSeeder extends Seeder
             $manager = User::firstOrCreate(
                 ['email' => $managerData['email']],
                 [
-                    'name' => $managerData['firstname'] . ' ' . $managerData['lastname'],
+                    //'name' => $managerData['firstname'] . ' ' . $managerData['lastname'],
                     'firstname' => $managerData['firstname'],
                     'lastname' => $managerData['lastname'],
                     'username' => $managerData['username'],
                     'gender' => $managerData['gender'],
                     'type' => User::TYPE_ADMIN,
-                    'password' => Hash::make('Manager@2024!'),
+                    'password' => Hash::make('Manager@2025!'),
                     'email_verified_at' => now(),
                 ]
             );
@@ -388,7 +388,7 @@ class AdminUsersSeeder extends Seeder
                     'username' => $cashierData['username'],
                     'gender' => $cashierData['gender'],
                     'type' => User::TYPE_ADMIN,
-                    'password' => Hash::make('Cashier@2024!'),
+                    'password' => Hash::make('Cashier@2025!'),
                     'email_verified_at' => now(),
                 ]
             );

@@ -125,16 +125,16 @@ class ProductsIndex extends Component
         //$product = Product::findOrFail($productId);
         $product = Product::with(['images', 'colors'])->findOrFail($productId);
         
-        // Supprimer les images physiques
-        foreach ($product->images as $image) {
+        // Supprimer les images physiques | Not here bcz of softDeletes - can undo 4exple
+        /* foreach ($product->images as $image) {
             if (Storage::disk('public')->exists($image->image_path)) {
                 Storage::disk('public')->delete($image->image_path);
             }
             $image->delete();
-        }
+        } */
         
         // Supprimer les associations de couleurs
-        $product->colors()->detach();
+        //$product->colors()->detach();
         
         // Supprimer le produit
         $product->delete();

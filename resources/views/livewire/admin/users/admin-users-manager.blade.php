@@ -1,3 +1,4 @@
+<!-- resources\views\livewire\admin\users\admin-users-manager.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6" x-data="{ 
     darkMode: false,
     showBulkActions: false,
@@ -331,7 +332,7 @@
                                     <!-- Voir détails -->
                                     <button 
                                         wire:click="showUserDetails({{ $user->id }})"
-                                        class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                        class="cursor-pointer inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                         title="Voir détails">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -342,7 +343,7 @@
                                     <!-- Modifier -->
                                     <button 
                                         wire:click="showEditUser({{ $user->id }})"
-                                        class="inline-flex items-center p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                        class="cursor-pointer inline-flex items-center p-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                         title="Modifier">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -352,7 +353,7 @@
                                     <!-- Gérer rôles -->
                                     <button 
                                         wire:click="showManageRoles({{ $user->id }})"
-                                        class="inline-flex items-center p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                        class="cursor-pointer inline-flex items-center p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                         title="Gérer rôles">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
@@ -363,7 +364,7 @@
                                     @if($user->id !== auth()->id())
                                         <button 
                                             wire:click="toggleUserStatus({{ $user->id }})"
-                                            class="inline-flex items-center p-2 {{ $user->suspended_at ? 'text-green-600 hover:text-green-800 hover:bg-green-50' : 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50' }} rounded-lg transition-all duration-200 transform hover:scale-110"
+                                            class="cursor-pointer inline-flex items-center p-2 {{ $user->suspended_at ? 'text-green-600 hover:text-green-800 hover:bg-green-50' : 'text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50' }} rounded-lg transition-all duration-200 transform hover:scale-110"
                                             title="{{ $user->suspended_at ? 'Réactiver' : 'Suspendre' }}">
                                             @if($user->suspended_at)
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,7 +382,7 @@
                                     @if($user->id !== auth()->id())
                                         <button 
                                             wire:click="confirmDelete({{ $user->id }})"
-                                            class="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                            class="cursor-pointer inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                             title="Supprimer">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -431,7 +432,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Créer un Nouvel Utilisateur</h3>
                         <button 
                             wire:click="closeCreateModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -453,7 +454,7 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom(s) <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="firstname"
@@ -462,7 +463,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="lastname"
@@ -471,17 +472,17 @@
                                     </div>
                                 </div>
 
-                                <div>
+                                {{-- <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
                                     <input 
                                         type="text" 
                                         wire:model="name"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200 @error('name') border-red-500 @enderror">
                                     @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                                </div>
+                                </div> --}}
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
                                     <input 
                                         type="email" 
                                         wire:model="email"
@@ -522,7 +523,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Type d'utilisateur *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Type d'utilisateur <span class="text-red-500">*</span></label>
                                         <select 
                                             wire:model="type"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200 @error('type') border-red-500 @enderror">
@@ -604,12 +605,12 @@
                             <button 
                                 type="button"
                                 wire:click="closeCreateModal"
-                                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                                class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                                 Annuler
                             </button>
                             <button 
                                 type="submit"
-                                class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                class="cursor-pointer px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                 </svg>
@@ -631,7 +632,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Modifier l'Utilisateur #{{ $selectedUser->id }}</h3>
                         <button 
                             wire:click="closeEditModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -653,7 +654,7 @@
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prénom(s) <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="firstname"
@@ -662,7 +663,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom <span class="text-red-500">*</span></label>
                                         <input 
                                             type="text" 
                                             wire:model="lastname"
@@ -671,17 +672,17 @@
                                     </div>
                                 </div>
 
-                                <div>
+                                {{-- <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
                                     <input 
                                         type="text" 
                                         wire:model="name"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 @error('name') border-red-500 @enderror">
                                     @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                                </div>
+                                </div> --}}
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email <span class="text-red-500">*</span></label>
                                     <input 
                                         type="email" 
                                         wire:model="email"
@@ -722,7 +723,7 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Type d'utilisateur *</label>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Type d'utilisateur <span class="text-red-500">*</span></label>
                                         <select 
                                             wire:model="type"
                                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 @error('type') border-red-500 @enderror">
@@ -781,12 +782,12 @@
                             <button 
                                 type="button"
                                 wire:click="closeEditModal"
-                                class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                                class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                                 Annuler
                             </button>
                             <button 
                                 type="submit"
-                                class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                                class="cursor-pointer px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                                 </svg>
@@ -872,12 +873,12 @@
                         <button 
                             type="button"
                             wire:click="closeRolesModal"
-                            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                            class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                             Annuler
                         </button>
                         <button 
                             type="submit"
-                            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
+                            class="cursor-pointer px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                             </svg>
@@ -898,7 +899,7 @@
                         <h3 class="text-xl font-bold text-gray-900">Profil Utilisateur - {{ $selectedUser->firstname ? $selectedUser->firstname . ' ' . $selectedUser->lastname : $selectedUser->name }}</h3>
                         <button 
                             wire:click="closeDetailsModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -917,7 +918,8 @@
                                         @if($selectedUser->firstname && $selectedUser->lastname)
                                             {{ substr($selectedUser->firstname, 0, 1) }}{{ substr($selectedUser->lastname, 0, 1) }}
                                         @else
-                                            {{ substr($selectedUser->name, 0, 2) }}
+                                            {{-- {{ substr($selectedUser->name, 0, 2) }} --}}
+                                            {{ substr($selectedUser->firstname, 0, 2) }}
                                         @endif
                                     </div>
                                     <h4 class="text-xl font-semibold text-gray-900 mb-2">
@@ -975,7 +977,7 @@
                                         @if($selectedUser->username)
                                             <div class="flex justify-between py-2 border-b border-gray-100">
                                                 <span class="text-gray-600">Nom d'utilisateur:</span>
-                                                <span class="font-medium">@{{ $selectedUser->username }}</span>
+                                                <span class="font-medium">{{-- @ --}}{{ $selectedUser->username }}</span>
                                             </div>
                                         @endif
                                         
@@ -1091,7 +1093,7 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <button 
                                             wire:click="showEditUser({{ $selectedUser->id }})"
-                                            class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                            class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
@@ -1100,7 +1102,7 @@
                                         
                                         <button 
                                             wire:click="showManageRoles({{ $selectedUser->id }})"
-                                            class="inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
+                                            class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                                             </svg>

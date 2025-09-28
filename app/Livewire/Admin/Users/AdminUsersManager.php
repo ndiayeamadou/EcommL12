@@ -39,8 +39,8 @@ class AdminUsersManager extends Component
     public ?User $userToDelete = null;
     
     // Formulaire - Informations principales
-    #[Validate('required|string|min:2|max:255')]
-    public string $name = '';
+    //#[Validate('required|string|min:2|max:255')]
+    //public string $name = '';
     
     #[Validate('required|string|min:2|max:255')]
     public string $firstname = '';
@@ -95,7 +95,7 @@ class AdminUsersManager extends Component
     ];
 
     protected array $rules = [
-        'name' => 'required|string|min:2|max:255',
+        //'name' => 'required|string|min:2|max:255',
         'firstname' => 'required|string|min:2|max:255',
         'lastname' => 'required|string|min:2|max:255',
         'email' => 'required|email|max:255',
@@ -108,7 +108,7 @@ class AdminUsersManager extends Component
     ];
 
     protected array $messages = [
-        'name.required' => 'Le nom complet est obligatoire.',
+        //'name.required' => 'Le nom complet est obligatoire.',
         'firstname.required' => 'Le prénom est obligatoire.',
         'lastname.required' => 'Le nom est obligatoire.',
         'email.required' => 'L\'adresse email est obligatoire.',
@@ -340,7 +340,7 @@ class AdminUsersManager extends Component
 
     private function fillForm(User $user): void
     {
-        $this->name = $user->name ?? '';
+        //$this->name = $user->name ?? '';
         $this->firstname = $user->firstname ?? '';
         $this->lastname = $user->lastname ?? '';
         $this->email = $user->email;
@@ -355,7 +355,7 @@ class AdminUsersManager extends Component
     private function resetForm(): void
     {
         $this->selectedUser = null;
-        $this->name = '';
+        //$this->name = '';
         $this->firstname = '';
         $this->lastname = '';
         $this->email = '';
@@ -381,7 +381,7 @@ class AdminUsersManager extends Component
 
         try {
             $user = User::create([
-                'name' => $this->name,
+                //'name' => $this->name,
                 'firstname' => $this->firstname,
                 'lastname' => $this->lastname,
                 'email' => $this->email,
@@ -389,7 +389,8 @@ class AdminUsersManager extends Component
                 'gender' => $this->gender ?: null,
                 'birth_date' => $this->birth_date ?: null,
                 'type' => $this->type,
-                'password' => Hash::make($this->password),
+                //'password' => Hash::make($this->password),
+                'password' => $this->password ? Hash::make($this->password) : Hash::make('secret'),
             ]);
 
             // Assigner les rôles
@@ -451,7 +452,7 @@ class AdminUsersManager extends Component
 
         try {
             $updateData = [
-                'name' => $this->name,
+                //'name' => $this->name,
                 'firstname' => $this->firstname,
                 'lastname' => $this->lastname,
                 'email' => $this->email,
@@ -620,8 +621,7 @@ class AdminUsersManager extends Component
             ->with(['roles', 'permissions'])
             ->when($this->search, function ($query) {
                 return $query->where(function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('firstname', 'like', '%' . $this->search . '%')
+                    $q->where('firstname', 'like', '%' . $this->search . '%')
                       ->orWhere('lastname', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%')
                       ->orWhere('username', 'like', '%' . $this->search . '%');

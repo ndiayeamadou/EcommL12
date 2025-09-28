@@ -329,7 +329,7 @@ class OrderDetails extends Component
         }
     }
 
-    public function generatePDF(): void
+    public function generatePDF()
     {
         try {
             $data = [
@@ -339,7 +339,8 @@ class OrderDetails extends Component
                 'generatedAt' => now()->format('d/m/Y à H:i'),
             ];
 
-            $pdf = Pdf::loadView('pdf.order-invoice', $data)
+            //$pdf = Pdf::loadView('pdf.order-invoice', $data)
+            $pdf = Pdf::loadView('pdf.order-invoice-demie-page', $data)
                 ->setPaper('a4', 'portrait')
                 ->setOptions([
                     'defaultFont' => 'DejaVu Sans',

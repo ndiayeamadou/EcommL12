@@ -166,7 +166,7 @@ class User extends Authenticatable
     }
 
     // Génération automatique du numéro client
-    protected static function boot()
+    /* protected static function boot()
     {
         parent::boot();
 
@@ -175,5 +175,32 @@ class User extends Authenticatable
                 $user->customer_number = 'CUST' . str_pad(static::max('id') + 1, 6, '0', STR_PAD_LEFT);
             }
         });
+    } */
+
+    // Génération automatique du numéro client avec préfixe selon le type
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (empty($user->customer_number)) {
+                $prefix = self::getPrefixForType($user->type);
+                $nextId = static::max('id') + 1;
+                $user->customer_number = $prefix . str_pad($nextId, 6, '0', STR_PAD_LEFT);
+            }
+        });
+    }
+
+    /**
+     * Retourne le préfixe approprié selon le type d'utilisateur
+     */
+    protected static function getPrefixForType(?int $type): string
+    {
+        return match($type) {
+            self::TYPE_CUSTOMER => 'CUST',
+            self::TYPE_ADMIN => 'USER',
+            self::TYPE_PROVIDER => 'PROV',
+            default => 'CUST' // Valeur par défaut au cas où
+        };
     }
 }
