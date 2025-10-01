@@ -29,7 +29,7 @@ class ProductCreate extends Component
     #[Validate('nullable|string|max:255|unique:products,slug')]
     public $slug = '';
     
-    #[Validate('required|string')]
+    #[Validate('nullable|string')]
     public $description = '';
     
     #[Validate('nullable|string')]
@@ -218,7 +218,7 @@ class ProductCreate extends Component
                 $this->validate([
                     'name' => 'required|string|max:255',
                     'category_id' => 'required|exists:categories,id',
-                    'description' => 'required|string',
+                    'description' => 'nullable|string',
                     'price' => 'required|numeric|min:0',
                 ]);
                 break;
@@ -296,7 +296,8 @@ class ProductCreate extends Component
         }
 
         session()->flash('success', 'Produit créé avec succès!');
-        return $this->redirect(route('admin.products.edit', $product), navigate: true);
+        //return $this->redirect(route('admin.products.edit', $product), navigate: true);
+        return $this->redirect(route('admin.products.index', $product), navigate: true);
     }
 
     public function render()

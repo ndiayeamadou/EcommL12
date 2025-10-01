@@ -162,7 +162,7 @@
                             <div class="flex items-center space-x-2">
                                 <button 
                                     wire:click="decrementQty({{ $item->id }})"
-                                    class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-md text-gray-600 hover:bg-gray-300"
+                                    class="cursor-pointer w-7 h-7 flex items-center justify-center bg-gray-200 rounded-md text-gray-600 hover:bg-gray-300"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
@@ -171,7 +171,7 @@
                                 <span class="text-sm font-medium w-8 text-center">{{ $item->quantity }}</span>
                                 <button 
                                     wire:click="incrementQty({{ $item->id }})"
-                                    class="w-7 h-7 flex items-center justify-center bg-gray-200 rounded-md text-gray-600 hover:bg-gray-300"
+                                    class="cursor-pointer w-7 h-7 flex items-center justify-center bg-gray-200 rounded-md text-gray-600 hover:bg-gray-300"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -179,7 +179,7 @@
                                 </button>
                                 <button 
                                     wire:click="removeFromCart({{ $item->id }})"
-                                    class="w-7 h-7 flex items-center justify-center bg-red-100 rounded-md text-red-600 hover:bg-red-200 ml-2"
+                                    class="cursor-pointer w-7 h-7 flex items-center justify-center bg-red-100 rounded-md text-red-600 hover:bg-red-200 ml-2"
                                 >
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -219,6 +219,8 @@
                 </div>
             </div>
             
+            <!-- Do not display them if total order = 0 -->
+            {{-- @if($totalPrice > 0) --}}
             <div class="flex space-x-3">
                 <button 
                     wire:click="clearCart"
@@ -237,6 +239,7 @@
                     Finaliser la vente
                 </button>
             </div>
+            {{-- @endif --}}
         </div>
     </div>
     
@@ -247,7 +250,7 @@
                 <div class="p-6">
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-xl font-bold text-gray-900">{{ $selectedProduct->name }}</h2>
-                        <button wire:click="closeProductModal" class="text-gray-400 hover:text-gray-600">
+                        <button wire:click="closeProductModal" class="cursor-pointer text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -322,35 +325,35 @@
                             <div class="mb-6">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Quantité</label>
                                 <div class="flex items-center">
-                                    <button 
+                                    {{-- <button 
                                         wire:click="decrementQty"
                                         class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-l-md text-gray-600 hover:bg-gray-300"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                                         </svg>
-                                    </button>
+                                    </button> --}}
                                     <input 
                                         type="number" 
                                         wire:model="qtyCount"
                                         min="1" 
                                         class="w-16 h-10 text-center border-t border-b border-gray-300"
                                     >
-                                    <button 
+                                    {{-- <button 
                                         wire:click="incrementQty"
                                         class="w-10 h-10 flex items-center justify-center bg-gray-200 rounded-r-md text-gray-600 hover:bg-gray-300"
                                     >
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                         </svg>
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
                             
                             <!-- Add to Cart Button -->
                             <button 
                                 wire:click="addToCart"
-                                class="w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors font-medium"
+                                class="cursor-pointer w-full py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors font-medium"
                             >
                                 Ajouter au panier
                             </button>

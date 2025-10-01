@@ -351,11 +351,11 @@ class SalesManager extends Component
     public function checkout()
     {
         // Implement checkout logic here
-        $this->dispatch('notify', [
+        /* $this->dispatch('notify', [
             'text' => 'Fonctionnalité de paiement à implémenter',
             'type' => 'info',
             'status' => 200
-        ]);
+        ]); */
         return $this->redirect('/admin/pos/checkout', navigate: true);
     }
     

@@ -21,9 +21,11 @@ return new class extends Migration
             $table->string('postal_code')->nullable();  // = pincode
             $table->string('address')->nullable();
             $table->string('status_message')->nullable();
+            $table->string('status_note')->nullable();
             $table->string('payment_mode')->nullable();
             $table->string('payment_id')->nullable();
             $table->unsignedBigInteger('agent_id')->nullable();  // l'agent qui a enregistré
+            $table->unsignedBigInteger('updated_by')->nullable();  // l'agent qui a édité
             $table->foreign('agent_id')->references('id')->on('users')->onDelete('set null');
             $table->enum('back',[0,1])->nullable(); // 0=back || 1=front
             $table->timestamps();

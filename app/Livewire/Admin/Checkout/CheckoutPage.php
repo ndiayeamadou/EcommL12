@@ -41,12 +41,12 @@ class CheckoutPage extends Component
     public $customers = [];
     
     protected $rules = [
-        'firstName' => 'required|min:2',
-        'lastName' => 'required|min:2',
-        'email' => 'required|email',
-        'phone' => 'required',
-        'address' => 'required',
-        'city' => 'required',
+        'firstName' => 'nullable|min:2',
+        'lastName' => 'nullable|min:2',
+        'email' => 'nullable|email',
+        'phone' => 'nullable',
+        'address' => 'nullable',
+        'city' => 'nullable',
         //'postalCode' => 'required',
         //'country' => 'required',
         'termsAccepted' => 'accepted',
@@ -55,7 +55,7 @@ class CheckoutPage extends Component
     protected $messages = [
         'firstName.required' => 'Le prénom est obligatoire.',
         'lastName.required' => 'Le nom est obligatoire.',
-        'email.required' => 'L\'email est obligatoire.',
+        //'email.required' => 'L\'email est obligatoire.',
         'email.email' => 'Veuillez entrer un email valide.',
         'phone.required' => 'Le téléphone est obligatoire.',
         'address.required' => 'L\'adresse est obligatoire.',
@@ -212,9 +212,9 @@ class CheckoutPage extends Component
         // Si nouvel utilisateur (non connecté ou admin créant un nouveau client)
         else {
             // Vérifier si l'email existe déjà
-            $existingCustomer = User::customers()->where('email', $this->email)->first();
+            //$existingCustomer = User::customers()->where('email', $this->email)->first();
             
-            if ($existingCustomer) {
+            /* if ($existingCustomer) {
                 // Si l'admin essaie de créer un client qui existe déjà
                 if ($currentUser && $currentUser->isAdmin()) {
                     $this->addError('email', 'Un client existe déjà avec cet email. Veuillez le sélectionner dans la recherche.');
@@ -234,8 +234,38 @@ class CheckoutPage extends Component
                 'email' => $this->email,
                 'type' => User::TYPE_CUSTOMER,
                 'password' => Hash::make(Str::random(12)),
-            ]);
+            ]); */
             
+            /* ALTERNATIVES - Sans erreur de validation d'email avec l'unicité, tenant en compte l'espace */
+            // Vérifier seulement si l'email n'est pas vide
+            if (!empty(trim($this->email))) {
+                $existingCustomer = User::customers()->where('email', $this->email)->first();
+                
+                if ($existingCustomer) {
+                    if ($currentUser && $currentUser->isAdmin()) {
+                        $this->addError('email', 'Un client existe déjà avec cet email. Veuillez le sélectionner dans la recherche.');
+                        return;
+                    }
+                    $this->addError('email', 'Un compte existe déjà avec cet email. Veuillez vous connecter.');
+                    return;
+                }
+            }
+            
+            // Créer un nouveau client avec email null si vide
+            $customerData = [
+                'firstname' => $this->firstName,
+                'lastname' => $this->lastName,
+                'type' => User::TYPE_CUSTOMER,
+                'password' => Hash::make(Str::random(12)),
+            ];
+            
+            // Ajouter l'email seulement s'il n'est pas vide
+            if (!empty(trim($this->email))) {
+                $customerData['email'] = $this->email;
+            }
+            
+            $customer = User::create($customerData);
+
             // Connecter automatiquement le nouveau client (sauf si c'est un admin qui crée)
             if (!$currentUser || !$currentUser->isAdmin()) {
                 Auth::login($customer);

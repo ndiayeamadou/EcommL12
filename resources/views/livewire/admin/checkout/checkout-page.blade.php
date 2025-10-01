@@ -1,3 +1,4 @@
+<!-- resources\views\livewire\admin\checkout\checkout-page.blade.php -->
 <div class="min-h-screen bg-gray-50 py-8" x-data="checkoutApp()">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header avec bouton retour et progression -->
@@ -118,25 +119,25 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Prénom(s)</label>
                             <input type="text" wire:model="firstName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                             @error('firstName') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
                             <input type="text" wire:model="lastName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                             @error('lastName') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
                     
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" wire:model="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                         @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                     
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
                         <input type="tel" wire:model="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                         @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
@@ -159,24 +160,24 @@
                     </h2>
                     
                     <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Adresse *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
                         <input type="text" wire:model="address" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors" placeholder="Votre adresse complète">
                         @error('address') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Ville *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ville</label>
                             <input type="text" wire:model="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                             @error('city') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Code postal *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Code postal</label>
                             <input type="text" wire:model="postalCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                             @error('postalCode') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Pays *</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Pays</label>
                             <select wire:model="country" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-colors">
                                 <option value="Sénégal">Sénégal</option>
                                 <option value="France">France</option>
@@ -234,7 +235,7 @@
                             </div>
                             
                             <!-- Carte de crédit -->
-                            <div 
+                            {{-- <div 
                                 class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:border-primary"
                                 :class="{'border-primary bg-purple-50': paymentMethod === 'card', 'border-gray-300': paymentMethod !== 'card'}"
                                 @click="paymentMethod = 'card'"
@@ -250,10 +251,10 @@
                                     <div class="w-10 h-6 bg-blue-100 rounded-sm flex items-center justify-center text-blue-800 text-xs font-bold">VISA</div>
                                     <div class="w-10 h-6 bg-red-100 rounded-sm flex items-center justify-center text-red-800 text-xs font-bold">MC</div>
                                 </div>
-                            </div>
+                            </div> --}}
                             
                             <!-- Wave Money -->
-                            <div 
+                            {{-- <div 
                                 class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:border-primary"
                                 :class="{'border-primary bg-purple-50': paymentMethod === 'wave', 'border-gray-300': paymentMethod !== 'wave'}"
                                 @click="paymentMethod = 'wave'"
@@ -270,10 +271,10 @@
                                         <path fill="currentColor" d="M21 6h-4v-1c0-1.654-1.346-3-3-3h-4c-1.654 0-3 1.346-3 3v1h-4c-1.654 0-3 1.346-3 3v9c0 1.654 1.346 3 3 3h16c1.654 0 3-1.346 3-3v-9c0-1.654-1.346-3-3-3zm-12-1c0-.551.449-1 1-1h4c.551 0 1 .449 1 1v1h-6v-1zm11 13c0 .551-.449 1-1 1h-16c-.551 0-1-.449-1-1v-9c0-.551.449-1 1-1h16c.551 0 1 .449 1 1v9zm-10-4c0-.552-.448-1-1-1s-1 .448-1 1 .448 1 1 1 1-.448 1-1zm5 0c0-.552-.448-1-1-1s-1 .448-1 1 .448 1 1 1 1-.448 1-1zm-10-3c0-.552-.448-1-1-1s-1 .448-1 1 .448 1 1 1 1-.448 1-1zm5 0c0-.552-.448-1-1-1s-1 .448-1 1 .448 1 1 1 1-.448 1-1zm5 0c0-.552-.448-1-1-1s-1 .448-1 1 .448 1 1 1 1-.448 1-1z"/>
                                     </svg>
                                 </div>
-                            </div>
+                            </div> --}}
                             
                             <!-- Orange Money -->
-                            <div 
+                            {{-- <div 
                                 class="border-2 rounded-lg p-4 cursor-pointer transition-all hover:border-primary"
                                 :class="{'border-primary bg-purple-50': paymentMethod === 'orange', 'border-gray-300': paymentMethod !== 'orange'}"
                                 @click="paymentMethod = 'orange'"
@@ -290,7 +291,7 @@
                                         <path fill="currentColor" d="M17.5 12.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5.672 1.5 1.5 1.5 1.5-.672 1.5-1.5zm-11-1.5c-.828 0-1.5.672-1.5 1.5s.672 1.5 1.5 1.5 1.5-.672 1.5-1.5-.672-1.5-1.5-1.5zm5.5-1c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5zm0-3c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8z"/>
                                     </svg>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                     

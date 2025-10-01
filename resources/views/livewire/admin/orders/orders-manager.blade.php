@@ -10,14 +10,14 @@
             </div>
             
             <div class="flex flex-col sm:flex-row gap-3">
-                <button 
+                {{-- <button 
                     wire:click="exportOrders"
                     class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     Exporter
-                </button>
+                </button> --}}
                 
                 <button 
                     onclick="window.location.reload()"
@@ -36,7 +36,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Total Commandes</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ number_format($totalOrders) }}</p>
+                        {{-- <p class="text-2xl font-bold text-gray-900">{{ number_format($totalOrders) }}</p> --}}
+                        <p class="text-2xl font-bold text-gray-900">{{ number_format($totalOrdersToday) }}</p>
                     </div>
                     <div class="p-3 bg-blue-100 rounded-full">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +51,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Chiffre d'Affaires</p>
-                        <p class="text-2xl font-bold text-green-600">{{ number_format($totalRevenue, 0, ',', ' ') }} F</p>
+                        {{-- <p class="text-2xl font-bold text-green-600">{{ number_format($totalRevenue, 0, ',', ' ') }} F</p> --}}
+                        <p class="text-2xl font-bold text-green-600">{{ number_format($totalRevenueToday, 0, ',', ' ') }} F</p>
                     </div>
                     <div class="p-3 bg-green-100 rounded-full">
                         <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +66,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">En Attente</p>
-                        <p class="text-2xl font-bold text-orange-600">{{ $pendingOrders }}</p>
+                        {{-- <p class="text-2xl font-bold text-orange-600">{{ $pendingOrders }}</p> --}}
+                        <p class="text-2xl font-bold text-orange-600">{{ $pendingOrdersToday }}</p>
                     </div>
                     <div class="p-3 bg-orange-100 rounded-full">
                         <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +81,8 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-600 mb-1">Terminées</p>
-                        <p class="text-2xl font-bold text-emerald-600">{{ $completedOrders }}</p>
+                        {{-- <p class="text-2xl font-bold text-emerald-600">{{ $completedOrders }}</p> --}}
+                        <p class="text-2xl font-bold text-emerald-600">{{ $completedOrdersToday }}</p>
                     </div>
                     <div class="p-3 bg-emerald-100 rounded-full">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,7 +303,7 @@
                                 <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                     <button 
                                         wire:click="showOrderDetails({{ $order->id }})"
-                                        class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                        class="cursor-pointer inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                         title="Voir détails">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -307,14 +311,16 @@
                                         </svg>
                                     </button>
                                     
+                                    @can('manage_system_users')
                                     <button 
                                         wire:click="confirmDelete({{ $order->id }})"
-                                        class="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                        class="cursor-pointer inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110"
                                         title="Supprimer">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
                                     </button>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -358,12 +364,12 @@
                             <h3 class="text-xl font-bold text-gray-900">Détails de la Commande #{{ $selectedOrder->id }}</h3>
                             @if($selectedOrder->tracking_no)
                                 {{-- <p class="text-sm text-gray-600 mt-1">N° de suivi: {{ $selectedOrder->tracking_no }}</p> --}}
-                                <p class="text-sm text-gray-600 mt-1">N° de suivi: <a href="/admin/orders/{{ $selectedOrder->id }}/details">{{ $selectedOrder->tracking_no }}</a></p>
+                                <p class="text-sm text-gray-600 mt-1">N° de suivi: <a href="/admin/orders/{{ $selectedOrder->id }}/details" class="text-green-700 hover:text-yellow-500">{{ $selectedOrder->tracking_no }}</a></p>
                             @endif
                         </div>
                         <button 
                             wire:click="closeOrderModal"
-                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
+                            class="cursor-pointer p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all duration-200 transform hover:scale-110">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                             </svg>
@@ -530,7 +536,7 @@
                             </h4>
                             <div class="flex flex-col sm:flex-row gap-4">
                                 <div class="flex-1">
-                                    <select wire:model="newStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                    <select wire:model="newStatus" class="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                                         @foreach($statuses as $status)
                                             <option value="{{ $status }}">{{ $status }}</option>
                                         @endforeach
@@ -538,7 +544,7 @@
                                 </div>
                                 <button 
                                     wire:click="updateOrderStatus"
-                                    class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                    class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>

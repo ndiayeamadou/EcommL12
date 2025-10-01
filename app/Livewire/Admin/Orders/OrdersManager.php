@@ -37,9 +37,11 @@ class OrdersManager extends Component
     
     // Statistiques
     public $totalOrders = 0;
+    public $totalOrdersToday = 0;
     public $totalRevenue = 0;
-    public $pendingOrders = 0;
-    public $completedOrders = 0;
+    public $totalRevenueToday = 0;
+    public $pendingOrders = 0, $pendingOrdersToday = 0;
+    public $completedOrders = 0, $completedOrdersToday = 0;
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -59,11 +61,36 @@ class OrdersManager extends Component
 
     public function loadStatistics()
     {
+        $today = now()->format('Y-m-d');
+
         $this->totalOrders = Order::count();
+
         $this->totalRevenue = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->sum(\DB::raw('order_items.quantity * order_items.price'));
+
         $this->pendingOrders = Order::whereIn('status_message', ['En cours de traitement', 'En attente'])->count();
+
         $this->completedOrders = Order::where('status_message', 'Terminé')->count();
+        //dd($this->totalRevenueToday);
+
+        // Statistiques d'aujourd'hui
+        $this->totalRevenueToday = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->whereDate('orders.created_at', today())
+            ->sum(\DB::raw('order_items.quantity * order_items.price'));
+
+        /* $this->totalRevenueToday = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->whereDate('orders.created_at', $today)
+            ->sum(\DB::raw('order_items.quantity * order_items.price')); */
+    
+        $this->totalOrdersToday = Order::whereDate('created_at', $today)->count();
+        
+        $this->pendingOrdersToday = Order::whereDate('created_at', $today)
+            ->whereIn('status_message', ['En cours de traitement', 'En attente'])
+            ->count();
+        
+        $this->completedOrdersToday = Order::whereDate('created_at', $today)
+            ->where('status_message', 'Terminé')
+            ->count();
     }
 
     public function updatingSearch()

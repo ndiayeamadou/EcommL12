@@ -16,14 +16,25 @@ class Order extends Model
         'postal_code',
         'address',
         'status_message',
+        'status_note',
         'payment_mode',
         'payment_id',
         'agent_id',
-        'back'
+        'back',
+        'updated_by'
     ];
 
     public function user () {
         return $this->belongsTo(User::class);
+    }
+
+    public function agent () {
+        return $this->belongsTo(User::class, 'agent_id');
+    }
+
+    //public function agent_de_suivi () {
+    public function updatedBy () {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     /**

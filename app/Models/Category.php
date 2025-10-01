@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Support\Str;
 
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, Sluggable;
 
     protected $fillable = [
         'name',
@@ -33,7 +34,7 @@ class Category extends Model
         'sort_order' => 'integer'
     ];
 
-    protected static function boot()
+    /* protected static function boot()
     {
         parent::boot();
         
@@ -48,6 +49,15 @@ class Category extends Model
                 $category->slug = Str::slug($category->name);
             }
         });
+    } */
+
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name'
+            ]
+        ];
     }
 
     // Relations

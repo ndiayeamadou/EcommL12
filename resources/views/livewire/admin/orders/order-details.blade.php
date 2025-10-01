@@ -291,6 +291,29 @@
                                 <div class="ml-4 w-0.5 h-4 bg-gray-200"></div>
                             @endif
                         @endforeach
+
+                        {{-- display updated at & updated by -  Phase Test --}}
+                        @if (!empty($order->updated_by))
+                        <div class="ml-4 w-0.5 h-4 bg-gray-200"></div> <!-- petit trait vertical (de sép) -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    {{ 2 }}
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-medium text-gray-900">{{ $order->status_message }}</h4>
+                                    <span class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($order->updated_at)->format('d/m/Y à H:i') }}</span>
+                                </div>
+                                @if(!empty($order->status_note))
+                                    <p class="text-sm text-gray-600 mt-1">{{ $order->status_note }}</p>
+                                @endif
+                                <p class="text-xs text-gray-500 mt-1">Par {{ $order->updatedBy->firstname .' '. $order->updatedBy->lastname }}</p>
+                            </div>
+                        </div>
+                        @endif
+
                     </div>
                 </div>
             </div>
@@ -459,7 +482,7 @@
                                 <h4 class="text-lg font-semibold text-gray-900 mb-4">Informations Client</h4>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
                                     <input 
                                         type="text" 
                                         wire:model="fullname"
@@ -468,7 +491,7 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                                     <input 
                                         type="email" 
                                         wire:model="email"

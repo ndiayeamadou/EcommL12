@@ -24,7 +24,7 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->date('birth_date')->nullable();
             $table->string('image')->nullable();
-            $table->date('ncin')->unique()->nullable();   // N° carte d'identité nationale
+            $table->string('ncin')->unique()->nullable();   // N° carte d'identité nationale
             $table->string('password');
             $table->rememberToken();
             $table->timestamp('suspended_at')->nullable();

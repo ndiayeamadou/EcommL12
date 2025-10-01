@@ -68,8 +68,8 @@ class OrderDetails extends Component
     public int $totalItems = 0;
 
     protected array $rules = [
-        'fullname' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
+        'fullname' => 'nullable|string|max:255',
+        'email' => 'nullable|email|max:255',
         'phone' => 'nullable|string|max:20',
         'address' => 'nullable|string|max:500',
         'city' => 'nullable|string|max:100',
@@ -156,8 +156,15 @@ class OrderDetails extends Component
                 'status' => 'En cours de traitement',
                 'date' => $this->order->created_at,
                 'note' => 'Commande créée',
-                'user' => 'Système'
-            ]
+                //'user' => 'Système'
+                'user' => $this->order->agent->firstname . ' ' . $this->order->agent->lastname . ' ' . ($this->order->agent->customer_number)
+            ]/* ,
+            [
+                'status' => $this->order->status_message,
+                'date' => $this->order->created_at,
+                'note' => $this->order->status_note,
+                'user' => $this->order->agent_de_suivi->lastname ?? null . ' ' . $this->order->agent_de_suivi->firstname ?? null . ' ' . ($this->order->agent_de_suivi->customer_number ?? null)
+            ] */
         ];
     }
 
@@ -169,8 +176,8 @@ class OrderDetails extends Component
     public function updateOrder(): void
     {
         $this->validate([
-            'fullname' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'fullname' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
@@ -222,6 +229,8 @@ class OrderDetails extends Component
         try {
             $this->order->update([
                 'status_message' => $this->status_message,
+                'status_note' => $this->status_note,
+                'updated_by' => auth()->user()->id,
             ]);
 
             // Ajouter à l'historique
@@ -229,7 +238,8 @@ class OrderDetails extends Component
                 'status' => $this->status_message,
                 'date' => now(),
                 'note' => $this->status_note,
-                'user' => auth()->user()->name ?? 'Admin'
+                //'user' => auth()->user()->name ?? 'Admin'
+                'user' => auth()->user()->firstname .' '. auth()->user()->lastname ?? 'Admin'
             ];
 
             $this->dispatch('notify', [

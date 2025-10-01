@@ -228,7 +228,7 @@
                         <!-- Description complète -->
                         <div class="lg:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Description Complète <span class="text-red-500">*</span>
+                                Description Complète
                             </label>
                             <textarea wire:model="description" 
                                       rows="6"

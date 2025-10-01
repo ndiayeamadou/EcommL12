@@ -82,7 +82,7 @@
                         <div class="flex items-center space-x-2">
                             <button wire:click="bulkDelete"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ces catégories ?')"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                    class="cursor-pointer bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
                                 Supprimer
                             </button>
                         </div>
@@ -122,13 +122,13 @@
                         @can('manage_system_users')
                         <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center space-x-2">
                             <button wire:click="edit({{ $category->id }})"
-                               class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-lg transition-all duration-200 transform hover:scale-110">
+                               class="cursor-pointer bg-white/90 hover:bg-white text-gray-800 p-2 rounded-lg transition-all duration-200 transform hover:scale-110">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
                             </button>
                             <button wire:click="confirmDelete({{ $category->id }})"
-                                    class="bg-white/90 hover:bg-white text-gray-800 p-2 rounded-lg transition-all duration-200 transform hover:scale-110">
+                                    class="cursor-pointer bg-white/90 hover:bg-white text-gray-800 p-2 rounded-lg transition-all duration-200 transform hover:scale-110">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                 </svg>
@@ -141,7 +141,7 @@
                             <input type="checkbox" 
                                    wire:model.live="selectedCategories" 
                                    value="{{ $category->id }}"
-                                   class="w-5 h-5 text-blue-600 rounded border-2 border-white/80 focus:ring-blue-500 transition-all">
+                                   class="cursor-pointer w-5 h-5 text-blue-600 rounded border-2 border-white/80 focus:ring-blue-500 transition-all">
                         </div>
 
                         <!-- Badge de couleur -->
@@ -189,13 +189,13 @@
                             @can('manage_system_users')
                             <div class="flex items-center space-x-1">
                                 <button wire:click="edit({{ $category->id }})"
-                                   class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+                                   class="cursor-pointer p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                     </svg>
                                 </button>
                                 <button wire:click="confirmDelete({{ $category->id }})"
-                                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
+                                        class="cursor-pointer p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
@@ -256,12 +256,15 @@
                         </div>
                         
                         <!-- Slug -->
+                        <!-- Display Slug Field Only In Edit Mode - Optional -->
+                        {{-- @if($editMode)
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Slug *</label>
                             <input type="text" wire:model="slug" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300">
                             @error('slug') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
+                        @endif --}}
                         
                         <!-- Description -->
                         <div class="md:col-span-2">
@@ -275,7 +278,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Catégorie parente</label>
                             <select wire:model="parent_id" 
-                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300">
+                                    class="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300">
                                 <option value="">Aucune (catégorie principale)</option>
                                 @foreach($parentCategories as $parent)
                                     <option value="{{ $parent->id }}">{{ $parent->name }}</option>
@@ -325,7 +328,7 @@
                                 </div>
                             @endif
                             <input type="file" wire:model="image" 
-                                   class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300">
+                                   class="cursor-pointer w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300">
                             @error('image') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                         </div>
                         

@@ -53,12 +53,12 @@ class CategoryManager extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'slug' => [
+            /* 'slug' => [
                 'required',
                 'string',
                 'max:255',
                 Rule::unique('categories')->ignore($this->categoryId)
-            ],
+            ], */
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
             'icon' => 'nullable|string|max:255',
@@ -160,7 +160,7 @@ class CategoryManager extends Component
 
         $data = [
             'name' => $this->name,
-            'slug' => $this->slug,
+            //'slug' => $this->slug,
             'description' => $this->description,
             'icon' => $this->icon,
             'color' => $this->color,

@@ -210,7 +210,7 @@ class AdminUsersSeeder extends Seeder
     private function createSuperAdministrator(): void
     {
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@entreprise.com'],
+            ['email' => 'superadmin@beauteafricaine.com'],
             [
                 //'name' => 'Super Administrateur',
                 'firstname' => 'Super',
@@ -233,7 +233,7 @@ class AdminUsersSeeder extends Seeder
             'country' => 'Sénégal',
         ]);
 
-        $this->command->info('👑 Super Administrateur créé : superadmin@entreprise.com / SuperAdmin@2024!');
+        $this->command->info('👑 Super Administrateur créé : superadmin@beauteafricaine.com / SuperAdmin@2024!');
     }
 
     /**
@@ -245,7 +245,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Amadou',
                 'lastname' => 'DIOP',
-                'email' => 'amadou.diop@entreprise.com',
+                'email' => 'amadou.diop@beauteafricaine.com',
                 'username' => 'amadou.diop',
                 'phone' => '+221 77 234 56 78',
                 'gender' => 'male',
@@ -253,7 +253,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Fatou',
                 'lastname' => 'NDIAYE',
-                'email' => 'fatou.ndiaye@entreprise.com',
+                'email' => 'fatou.ndiaye@beauteafricaine.com',
                 'username' => 'fatou.ndiaye',
                 'phone' => '+221 76 345 67 89',
                 'gender' => 'female',
@@ -296,7 +296,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Ousmane',
                 'lastname' => 'FALL',
-                'email' => 'ousmane.fall@entreprise.com',
+                'email' => 'ousmane.fall@beauteafricaine.com',
                 'username' => 'ousmane.fall',
                 'phone' => '+221 77 456 78 90',
                 'gender' => 'male',
@@ -304,7 +304,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Aïssatou',
                 'lastname' => 'BA',
-                'email' => 'aissatou.ba@entreprise.com',
+                'email' => 'aissatou.ba@beauteafricaine.com',
                 'username' => 'aissatou.ba',
                 'phone' => '+221 76 567 89 01',
                 'gender' => 'female',
@@ -347,7 +347,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Mamadou',
                 'lastname' => 'SECK',
-                'email' => 'mamadou.seck@entreprise.com',
+                'email' => 'mamadou.seck@beauteafricaine.com',
                 'username' => 'mamadou.seck',
                 'phone' => '+221 77 678 90 12',
                 'gender' => 'male',
@@ -355,7 +355,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Khady',
                 'lastname' => 'SARR',
-                'email' => 'khady.sarr@entreprise.com',
+                'email' => 'khady.sarr@beauteafricaine.com',
                 'username' => 'khady.sarr',
                 'phone' => '+221 76 789 01 23',
                 'gender' => 'female',
@@ -363,7 +363,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Ibrahima',
                 'lastname' => 'GUEYE',
-                'email' => 'ibrahima.gueye@entreprise.com',
+                'email' => 'ibrahima.gueye@beauteafricaine.com',
                 'username' => 'ibrahima.gueye',
                 'phone' => '+221 77 890 12 34',
                 'gender' => 'male',
@@ -371,7 +371,7 @@ class AdminUsersSeeder extends Seeder
             [
                 'firstname' => 'Marième',
                 'lastname' => 'DIALLO',
-                'email' => 'marieme.diallo@entreprise.com',
+                'email' => 'marieme.diallo@beauteafricaine.com',
                 'username' => 'marieme.diallo',
                 'phone' => '+221 76 901 23 45',
                 'gender' => 'female',
