@@ -25,9 +25,9 @@ class AdminUsersSeeder extends Seeder
         // Créer les utilisateurs système
         $this->createSuperAdministrator();
         $this->createAdministrators();
-        $this->createManagers();
+        /* $this->createManagers();
         $this->createCashiers();
-        $this->createProviders();
+        $this->createProviders(); */
         
         $this->command->info('✅ Utilisateurs système créés avec succès !');
     }
@@ -290,7 +290,7 @@ class AdminUsersSeeder extends Seeder
     /**
      * Créer les gestionnaires
      */
-    private function createManagers(): void
+    /* private function createManagers(): void
     {
         $managers = [
             [
@@ -336,12 +336,12 @@ class AdminUsersSeeder extends Seeder
         }
 
         $this->command->info('📊 Gestionnaires créés (mot de passe: Manager@2024!)');
-    }
+    } */
 
     /**
      * Créer les caissiers
      */
-    private function createCashiers(): void
+    /* private function createCashiers(): void
     {
         $cashiers = [
             [
@@ -403,12 +403,12 @@ class AdminUsersSeeder extends Seeder
         }
 
         $this->command->info('💰 Caissiers créés (mot de passe: Cashier@2024!)');
-    }
+    } */
 
     /**
      * Créer les fournisseurs
      */
-    private function createProviders(): void
+    /* private function createProviders(): void
     {
         $providers = [
             [
@@ -466,5 +466,5 @@ class AdminUsersSeeder extends Seeder
         }
 
         $this->command->info('🏢 Fournisseurs créés (mot de passe: Provider@2024!)');
-    }
+    } */
 }

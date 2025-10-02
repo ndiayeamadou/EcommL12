@@ -82,7 +82,7 @@
                             <input wire:model.blur="name" 
                                    type="text" 
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/90 backdrop-blur-sm"
-                                   placeholder="Ex: iPhone 15 Pro Max">
+                                   placeholder="Ex: AIR FRESHENER">
                             @error('name')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
@@ -129,8 +129,9 @@
                             </label>
                             <input wire:model="slug" 
                                    type="text" 
+                                   disabled
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/90 backdrop-blur-sm"
-                                   placeholder="iphone-15-pro-max">
+                                   placeholder="air-freshener">
                             @error('slug')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
                             @enderror
@@ -143,6 +144,7 @@
                             </label>
                             <input wire:model="sku" 
                                    type="text" 
+                                   disabled
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/90 backdrop-blur-sm">
                             @error('sku')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -152,7 +154,7 @@
                         <!-- Prix -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Prix Regular (F) <span class="text-red-500">*</span>
+                                Prix Regulier (F) <span class="text-red-500">*</span>
                             </label>
                             <input wire:model.blur="price" 
                                    type="number" 
@@ -174,6 +176,7 @@
                                    type="number" 
                                    step="0.01" 
                                    min="0"
+                                   disabled
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/90 backdrop-blur-sm"
                                    placeholder="799.00">
                             @error('sale_price')

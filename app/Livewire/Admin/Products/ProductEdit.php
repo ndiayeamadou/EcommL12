@@ -31,7 +31,7 @@ class ProductEdit extends Component
     #[Validate('nullable|string|max:255')]
     public $slug = '';
     
-    #[Validate('required|string')]
+    #[Validate('nullable|string')]
     public $description = '';
     
     #[Validate('nullable|string')]
@@ -316,7 +316,7 @@ class ProductEdit extends Component
                 $this->validate([
                     'name' => 'required|string|max:255',
                     'category_id' => 'required|exists:categories,id',
-                    'description' => 'required|string',
+                    'description' => 'nullable|string',
                     'price' => 'required|numeric|min:0',
                 ]);
                 break;
@@ -414,6 +414,8 @@ class ProductEdit extends Component
         $this->dispatch('product-updated', [
             'message' => 'Produit mis à jour avec succès!'
         ]);
+
+        return $this->redirect(route('admin.products.index', $this->product), navigate: true);
     }
 
     public function duplicate()

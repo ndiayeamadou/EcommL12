@@ -1,9 +1,9 @@
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
+    <x-settings.layout :heading="__('Profil')" :subheading="__('Mettre à jour votre nom et adresse email')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <flux:input wire:model="firstname" :label="__('Prénom')" type="text" required autofocus autocomplete="firstname" />
+            <flux:input wire:model="firstname" :label="__('Prénom(s)')" type="text" required autofocus autocomplete="firstname" />
             <flux:input wire:model="lastname" :label="__('Nom')" type="text" required autofocus autocomplete="lastname" />
 
             <div>

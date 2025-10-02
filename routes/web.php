@@ -34,4 +34,4 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function() {
 });
 
 require __DIR__.'/auth.php';
-require __DIR__.'/in/pos.php';
+require __DIR__.'/in/admin.php';

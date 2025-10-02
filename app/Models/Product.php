@@ -150,7 +150,8 @@ class Product extends Model
 
     public function getIsOnSaleAttribute()
     {
-        return $this->sale_price && $this->sale_price < $this->price;
+        //return $this->sale_price && $this->sale_price < $this->price;
+        return $this->price > $this->sale_price && $this->sale_price;
     }
 
     public function getDiscountPercentageAttribute()

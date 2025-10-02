@@ -232,6 +232,7 @@
                                             <div class="text-xl font-bold text-green-600 mb-2">
                                                 {{ number_format($item->price * $item->quantity, 0, ',', ' ') }} F
                                             </div>
+                                            @can('manage_system_users')
                                             <button 
                                                 wire:click="confirmDeleteItem({{ $item->id }})"
                                                 class="cursor-pointer opacity-0 group-hover:opacity-100 inline-flex items-center px-2 py-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-105">
@@ -239,6 +240,7 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                 </svg>
                                             </button>
+                                            @endcan
                                         </div>
                                     </div>
                                 </div>

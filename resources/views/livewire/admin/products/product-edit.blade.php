@@ -23,7 +23,7 @@
                 
                 <div class="flex flex-wrap gap-3">
                     <button wire:click="toggleStats"
-                            class="group bg-white/60 hover:bg-white/80 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
+                            class="cursor-pointer group bg-white/60 hover:bg-white/80 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                         <svg class="w-5 h-5 transition-transform {{ $showStats ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                         </svg>
@@ -38,7 +38,7 @@
                         <span class="hidden sm:inline">Dupliquer</span>
                     </button>
                     
-                    <a href="{{ route('admin.products.show', $product) }}" target="_blank"
+                    {{-- <a href="{{ route('admin.products.show', $product) }}" target="_blank"
                        class="group bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -54,7 +54,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
                         <span class="hidden sm:inline">Supprimer</span>
-                    </button>
+                    </button> --}}
                 </div>
             </div>
         </div>
@@ -245,7 +245,7 @@
                         <!-- Prix -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Prix Regular (F) <span class="text-red-500">*</span>
+                                Prix Régulier (F) <span class="text-red-500">*</span>
                             </label>
                             <input wire:model.blur="price" 
                                    type="number" 
@@ -271,6 +271,7 @@
                                    type="number" 
                                    step="0.01" 
                                    min="0"
+                                   disabled
                                    class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/90 backdrop-blur-sm">
                             @error('sale_price')
                                 <span class="text-red-500 text-sm mt-1">{{ $message }}</span>
@@ -331,7 +332,7 @@
                         <!-- Description complète -->
                         <div class="lg:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Description Complète <span class="text-red-500">*</span>
+                                Description Complète
                             </label>
                             <textarea wire:model="description" 
                                       rows="6"
@@ -698,20 +699,20 @@
                 <button type="button" 
                         wire:click="previousStep"
                         @if($currentStep === 1) disabled @endif
-                        class="px-6 py-3 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed text-gray-700 font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none">
+                        class="cursor-pointer px-6 py-3 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed text-gray-700 font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none">
                     ← Précédent
                 </button>
                 
                 @if($currentStep < $totalSteps)
                     <button type="button" 
                             wire:click="nextStep"
-                            class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105">
+                            class="cursor-pointer px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105">
                         Suivant →
                     </button>
                 @else
                     <div class="flex space-x-3">
                         <button type="submit" 
-                                class="px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center space-x-2">
+                                class="cursor-pointer px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                             </svg>

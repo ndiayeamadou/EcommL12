@@ -317,10 +317,12 @@
         <!-- En-tête compact -->
         <div class="invoice-header">
             <div class="company-brand">
-                <div class="company-name">VOTRE ENTREPRISE</div>
+                <div class="company-name">BEAUTE AFRICAINE</div>
                 <div class="company-details">
-                    123 Rue de l'Commerce, Dakar<br>
-                    Tél: +221 33 XXX XX XX • NINEA: 123456789
+                    {{-- 123 Rue de l'Commerce, Dakar<br> --}}
+                    Marché Central, Mbour, en face village artisanal<br>
+                    {{-- Tél: +221 33 XXX XX XX • NINEA: 123456789 --}}
+                    Tél: +221 76 631 23 88
                 </div>
             </div>
             <div class="invoice-meta">
@@ -476,8 +478,8 @@
         <!-- Message de remerciement -->
         <div class="thank-you-note">
             <span class="font-bold">Merci pour votre confiance !</span> 
-            • Service: +221 33 XXX XX XX 
-            • www.votre-site.com
+            • Service: +221 76 631 23 88 
+            • www.beauteafricaine.com
         </div>
         
         <!-- Pied de page -->
