@@ -17,7 +17,6 @@ class SuperAdminDashboard extends Component
 
     public function mount(): void
     {
-        // Vérifier les permissions
         if (!auth()->user()->can('manage_system_users')) {
             abort(403, 'Accès refusé. Permissions insuffisantes.');
         }
@@ -62,12 +61,14 @@ class SuperAdminDashboard extends Component
 
     private function getMainStats($dateFilter)
     {
-        $revenue = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->where('orders.created_at', '>=', $dateFilter)
+        $revenue = Order::where('orders.created_at', '>=', $dateFilter)
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->sum(DB::raw('order_items.price * order_items.quantity')) ?? 0;
 
         $orders = Order::where('created_at', '>=', $dateFilter)->count();
-        $customers = Order::where('created_at', '>=', $dateFilter)->distinct('user_id')->count('user_id');
+        $customers = Order::where('created_at', '>=', $dateFilter)
+            ->distinct('user_id')
+            ->count('user_id');
         $aov = $orders > 0 ? $revenue / $orders : 0;
 
         return [
@@ -78,19 +79,24 @@ class SuperAdminDashboard extends Component
             'products' => Product::count(),
             'categories' => Category::count(),
             'brands' => Brand::count(),
-            'out_of_stock' => Product::where('in_stock', false)->count(),
-            'low_stock' => Product::where('stock_quantity', '<=', 10)->where('manage_stock', true)->count(),
+            'out_of_stock' => Product::where('stock_quantity', '<=', 0)->count(),
+            'low_stock' => Product::where('stock_quantity', '>', 0)
+                ->where('stock_quantity', '<=', 10)
+                ->where('manage_stock', true)
+                ->count(),
         ];
     }
 
     private function getRevenueByCategory($dateFilter)
     {
-        return Category::select('categories.name', 'categories.color')
+        return Category::select('categories.id', 'categories.name', 'categories.color')
             ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue')
             ->leftJoin('products', 'categories.id', '=', 'products.category_id')
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.created_at', '>=', $dateFilter)
+            ->leftJoin('orders', function($join) use ($dateFilter) {
+                $join->on('order_items.order_id', '=', 'orders.id')
+                     ->where('orders.created_at', '>=', $dateFilter);
+            })
             ->groupBy('categories.id', 'categories.name', 'categories.color')
             ->orderByDesc('revenue')
             ->limit(6)
@@ -115,12 +121,14 @@ class SuperAdminDashboard extends Component
 
     private function getBestSellingProducts($dateFilter)
     {
-        return Product::select('products.name', 'products.sku', 'products.price', 'products.stock_quantity')
+        return Product::select('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->selectRaw('COALESCE(SUM(order_items.quantity), 0) as units_sold')
             ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue')
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.created_at', '>=', $dateFilter)
+            ->leftJoin('orders', function($join) use ($dateFilter) {
+                $join->on('order_items.order_id', '=', 'orders.id')
+                     ->where('orders.created_at', '>=', $dateFilter);
+            })
             ->groupBy('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->orderByDesc('units_sold')
             ->limit(8)
@@ -130,15 +138,8 @@ class SuperAdminDashboard extends Component
 
     private function getOutOfStockProducts()
     {
-        /* return Product::where('in_stock', false)
-            ->orWhere('stock_quantity', '<=', 0)
-            ->select('name', 'sku', 'price', 'stock_quantity')
-            ->orderBy('name')
-            ->limit(10)
-            ->get()
-            ->toArray(); */
-        return Product::Where('stock_quantity', '<=', 0)
-            ->select('name', 'sku', 'price', 'stock_quantity')
+        return Product::where('stock_quantity', '<=', 0)
+            ->select('id', 'name', 'sku', 'price', 'stock_quantity')
             ->orderBy('name')
             ->limit(10)
             ->get()
@@ -150,7 +151,7 @@ class SuperAdminDashboard extends Component
         return Product::where('stock_quantity', '>', 0)
             ->where('stock_quantity', '<=', 10)
             ->where('manage_stock', true)
-            ->select('name', 'sku', 'price', 'stock_quantity')
+            ->select('id', 'name', 'sku', 'price', 'stock_quantity')
             ->orderBy('stock_quantity')
             ->limit(10)
             ->get()
@@ -161,7 +162,9 @@ class SuperAdminDashboard extends Component
     {
         $totalVisitors = User::where('created_at', '>=', $dateFilter)->count();
         $totalOrders = Order::where('created_at', '>=', $dateFilter)->count();
-        $totalCustomers = Order::where('created_at', '>=', $dateFilter)->distinct('user_id')->count('user_id');
+        $totalCustomers = Order::where('created_at', '>=', $dateFilter)
+            ->distinct('user_id')
+            ->count('user_id');
 
         return [
             'visitor_to_customer' => $totalVisitors > 0 ? round(($totalCustomers / $totalVisitors) * 100, 1) : 0,
@@ -172,11 +175,12 @@ class SuperAdminDashboard extends Component
     private function getSalesTrend($dateFilter)
     {
         return Order::selectRaw("
-                DATE_FORMAT(created_at, '%Y-%m-%d') as period,
+                DATE_FORMAT(orders.created_at, '%Y-%m-%d') as period,
                 COUNT(*) as orders,
-                COALESCE(SUM((SELECT SUM(price * quantity) FROM order_items WHERE order_items.order_id = orders.id)), 0) as revenue
+                COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue
             ")
-            ->where('created_at', '>=', $dateFilter)
+            ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.created_at', '>=', $dateFilter)
             ->groupBy('period')
             ->orderBy('period')
             ->limit(10)

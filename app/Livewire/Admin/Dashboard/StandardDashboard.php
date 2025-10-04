@@ -15,39 +15,57 @@ class StandardDashboard extends Component
 {
     public $selectedPeriod = 'month';
     public $currentUser;
+    public $loading = true;
 
-    public function mount()
+    public function mount(): void
     {
         $this->currentUser = auth()->user();
+        
+        // Vérification des permissions
+        if (!$this->currentUser->hasAnyRole(['Vendeur', 'Caissier', 'Administrateur'])) {
+            abort(403, 'Accès refusé. Rôle utilisateur insuffisant.');
+        }
     }
 
-    public function changePeriod($period)
+    public function changePeriod($period): void
     {
         $this->selectedPeriod = $period;
+        $this->loading = true;
     }
 
     public function render()
     {
-        $dateFilter = $this->getDateFilter();
-        
-        $data = [
-            'selectedPeriod' => $this->selectedPeriod,
-            'currentUser' => $this->currentUser,
-            'personalStats' => $this->getPersonalStats($dateFilter),
-            'teamStats' => $this->getTeamStats($dateFilter),
-            'topCustomers' => $this->getTopCustomers($dateFilter),
-            'bestSellingProducts' => $this->getBestSellingProducts($dateFilter),
-            'outOfStockProducts' => $this->getOutOfStockProducts(),
-            'lowStockProducts' => $this->getLowStockProducts(),
-            'recentOrders' => $this->getRecentOrders($dateFilter),
-            'salesTrend' => $this->getSalesTrend($dateFilter),
-        ];
+        try {
+            $dateFilter = $this->getDateFilter();
+            
+            $data = [
+                'selectedPeriod' => $this->selectedPeriod,
+                'currentUser' => $this->currentUser,
+                'personalStats' => $this->getPersonalStats($dateFilter),
+                'teamStats' => $this->getTeamStats($dateFilter),
+                'performanceMetrics' => $this->getPerformanceMetrics($dateFilter),
+                'topCustomers' => $this->getTopCustomers($dateFilter),
+                'bestSellingProducts' => $this->getBestSellingProducts($dateFilter),
+                'outOfStockProducts' => $this->getOutOfStockProducts(),
+                'lowStockProducts' => $this->getLowStockProducts(),
+                'recentOrders' => $this->getRecentOrders($dateFilter),
+                'salesTrend' => $this->getSalesTrend($dateFilter),
+                'loading' => $this->loading,
+            ];
 
-        return view('livewire.admin.dashboard.standard-dashboard', $data)
-            ->layout('components.layouts.app');
+            $this->loading = false;
+
+            return view('livewire.admin.dashboard.standard-dashboard', $data)
+                ->layout('components.layouts.app');
+                
+        } catch (\Exception $e) {
+            $this->loading = false;
+            \Log::error('StandardDashboard error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
-    private function getDateFilter()
+    private function getDateFilter(): Carbon
     {
         return match($this->selectedPeriod) {
             'today' => Carbon::today(),
@@ -59,51 +77,103 @@ class StandardDashboard extends Component
         };
     }
 
-    private function getPersonalStats($dateFilter)
+    private function getPersonalStats($dateFilter): array
     {
-        // Commandes créées par l'utilisateur actuel
-        $personalOrders = Order::where('created_at', '>=', $dateFilter)
+        $personalStats = Order::where('orders.created_at', '>=', $dateFilter)
             ->where('agent_id', $this->currentUser->id)
-            ->get();
+            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->selectRaw('
+                COUNT(DISTINCT orders.id) as order_count,
+                COUNT(DISTINCT orders.user_id) as customer_count,
+                COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue
+            ')
+            ->first();
 
-        $personalRevenue = $personalOrders->sum(function($order) {
-            return $order->orderItems->sum(function($item) {
-                return $item->price * $item->quantity;
-            });
-        });
-
-        $personalOrderCount = $personalOrders->count();
-        $personalCustomers = $personalOrders->unique('user_id')->count();
-        $personalAOV = $personalOrderCount > 0 ? $personalRevenue / $personalOrderCount : 0;
+        $revenue = $personalStats->revenue ?? 0;
+        $orderCount = $personalStats->order_count ?? 0;
+        $customerCount = $personalStats->customer_count ?? 0;
+        $aov = $orderCount > 0 ? $revenue / $orderCount : 0;
 
         return [
-            'revenue' => $personalRevenue,
-            'orders' => $personalOrderCount,
-            'customers' => $personalCustomers,
-            'aov' => $personalAOV,
+            'revenue' => $revenue,
+            'orders' => $orderCount,
+            'customers' => $customerCount,
+            'aov' => $aov,
             'today_orders' => Order::whereDate('created_at', Carbon::today())
                 ->where('agent_id', $this->currentUser->id)
                 ->count(),
         ];
     }
 
-    private function getTeamStats($dateFilter)
+    private function getTeamStats($dateFilter): array
     {
-        // Statistiques de toute l'équipe (tous les agents)
         $teamRevenue = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
             ->sum(DB::raw('order_items.price * order_items.quantity')) ?? 0;
 
         $teamOrders = Order::where('created_at', '>=', $dateFilter)->count();
-        $teamCustomers = Order::where('created_at', '>=', $dateFilter)->distinct('user_id')->count('user_id');
+        $teamCustomers = Order::where('created_at', '>=', $dateFilter)
+            ->distinct('user_id')
+            ->count('user_id');
 
         return [
             'revenue' => $teamRevenue,
             'orders' => $teamOrders,
             'customers' => $teamCustomers,
             'products' => Product::count(),
-            'out_of_stock' => Product::where('in_stock', false)->count(),
-            'low_stock' => Product::where('stock_quantity', '<=', 10)->where('manage_stock', true)->count(),
+            'out_of_stock' => Product::where('stock_quantity', '<=', 0)->count(),
+            'low_stock' => Product::where('stock_quantity', '>', 0)
+                ->where('stock_quantity', '<=', 10)
+                ->where('manage_stock', true)
+                ->count(),
+        ];
+    }
+
+    private function getPerformanceMetrics($dateFilter): array
+    {
+        $personalRevenue = $this->getPersonalStats($dateFilter)['revenue'];
+        $teamRevenue = $this->getTeamStats($dateFilter)['revenue'];
+        
+        $contributionRate = $teamRevenue > 0 ? round(($personalRevenue / $teamRevenue) * 100, 1) : 0;
+        
+        // Calcul du classement dans l'équipe
+        $teamRanking = $this->calculateTeamRanking($dateFilter);
+        $userRank = $teamRanking['user_rank'] ?? null;
+        $totalAgents = $teamRanking['total_agents'] ?? 0;
+
+        return [
+            'contribution_rate' => $contributionRate,
+            'user_rank' => $userRank,
+            'total_agents' => $totalAgents,
+            'is_top_performer' => $userRank === 1 && $totalAgents > 1,
+        ];
+    }
+
+    private function calculateTeamRanking($dateFilter): array
+    {
+        $agentsPerformance = User::role(['Vendeur', 'Caissier'])
+            ->select('users.id', 'users.firstname', 'users.lastname')
+            ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue')
+            ->leftJoin('orders', function($join) use ($dateFilter) {
+                $join->on('users.id', '=', 'orders.agent_id')
+                     ->where('orders.created_at', '>=', $dateFilter);
+            })
+            ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->groupBy('users.id', 'users.firstname', 'users.lastname')
+            ->orderByDesc('revenue')
+            ->get();
+
+        $userRank = null;
+        foreach ($agentsPerformance as $index => $agent) {
+            if ($agent->id === $this->currentUser->id) {
+                $userRank = $index + 1;
+                break;
+            }
+        }
+
+        return [
+            'user_rank' => $userRank,
+            'total_agents' => $agentsPerformance->count(),
         ];
     }
 
@@ -122,14 +192,16 @@ class StandardDashboard extends Component
             ->toArray();
     }
 
-    private function getBestSellingProducts($dateFilter)
+    private function getBestSellingProducts($dateFilter): array
     {
-        return Product::select('products.name', 'products.sku', 'products.price', 'products.stock_quantity')
+        return Product::select('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->selectRaw('COALESCE(SUM(order_items.quantity), 0) as units_sold')
             ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue')
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
-            ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.created_at', '>=', $dateFilter)
+            ->leftJoin('orders', function($join) use ($dateFilter) {
+                $join->on('order_items.order_id', '=', 'orders.id')
+                     ->where('orders.created_at', '>=', $dateFilter);
+            })
             ->groupBy('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->orderByDesc('units_sold')
             ->limit(6)
@@ -137,30 +209,29 @@ class StandardDashboard extends Component
             ->toArray();
     }
 
-    private function getOutOfStockProducts()
+    private function getOutOfStockProducts(): array
     {
-        //return Product::where('in_stock', false)
         return Product::where('stock_quantity', '<=', 0)
-            ->select('name', 'sku', 'price', 'stock_quantity')
+            ->select('id', 'name', 'sku', 'price', 'stock_quantity')
             ->orderBy('name')
             ->limit(8)
             ->get()
             ->toArray();
     }
 
-    private function getLowStockProducts()
+    private function getLowStockProducts(): array
     {
         return Product::where('stock_quantity', '>', 0)
             ->where('stock_quantity', '<=', 10)
             ->where('manage_stock', true)
-            ->select('name', 'sku', 'price', 'stock_quantity')
+            ->select('id', 'name', 'sku', 'price', 'stock_quantity')
             ->orderBy('stock_quantity')
             ->limit(8)
             ->get()
             ->toArray();
     }
 
-    private function getRecentOrders($dateFilter)
+    private function getRecentOrders($dateFilter): array
     {
         return Order::with(['user', 'orderItems.product'])
             ->where('created_at', '>=', $dateFilter)
@@ -177,19 +248,21 @@ class StandardDashboard extends Component
                     'status' => $order->status_message,
                     'date' => $order->created_at->format('d/m/Y H:i'),
                     'items_count' => $order->orderItems->count(),
+                    'is_my_order' => $order->agent_id === $this->currentUser->id,
                 ];
             })
             ->toArray();
     }
 
-    private function getSalesTrend($dateFilter)
+    private function getSalesTrend($dateFilter): array
     {
         return Order::selectRaw("
-                DATE_FORMAT(created_at, '%Y-%m-%d') as period,
+                DATE_FORMAT(orders.created_at, '%Y-%m-%d') as period,
                 COUNT(*) as orders,
-                COALESCE(SUM((SELECT SUM(price * quantity) FROM order_items WHERE order_items.order_id = orders.id)), 0) as revenue
+                COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue
             ")
-            ->where('created_at', '>=', $dateFilter)
+            ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.created_at', '>=', $dateFilter)
             ->groupBy('period')
             ->orderBy('period')
             ->limit(7)
