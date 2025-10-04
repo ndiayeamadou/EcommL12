@@ -4,7 +4,9 @@ namespace App\Livewire\Admin\Orders;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\User;
+use App\Models\ProductColor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -34,6 +36,9 @@ class OrdersManager extends Component
     // Mise à jour de statut
     public $newStatus = '';
     public $statusUpdateReason = '';
+    
+    // Suivi des changements de statut pour gestion du stock
+    public $previousStatus = '';
     
     // Statistiques
     public $totalOrders = 0;
@@ -71,16 +76,11 @@ class OrdersManager extends Component
         $this->pendingOrders = Order::whereIn('status_message', ['En cours de traitement', 'En attente'])->count();
 
         $this->completedOrders = Order::where('status_message', 'Terminé')->count();
-        //dd($this->totalRevenueToday);
 
         // Statistiques d'aujourd'hui
         $this->totalRevenueToday = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->whereDate('orders.created_at', today())
             ->sum(\DB::raw('order_items.quantity * order_items.price'));
-
-        /* $this->totalRevenueToday = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->whereDate('orders.created_at', $today)
-            ->sum(\DB::raw('order_items.quantity * order_items.price')); */
     
         $this->totalOrdersToday = Order::whereDate('created_at', $today)->count();
         
@@ -143,6 +143,7 @@ class OrdersManager extends Component
         
         if ($this->selectedOrder) {
             $this->newStatus = $this->selectedOrder->status_message;
+            $this->previousStatus = $this->selectedOrder->status_message; // Sauvegarde l'ancien statut
             $this->showOrderModal = true;
         }
     }
@@ -153,6 +154,7 @@ class OrdersManager extends Component
         $this->selectedOrder = null;
         $this->newStatus = '';
         $this->statusUpdateReason = '';
+        $this->previousStatus = '';
     }
 
     public function updateOrderStatus()
@@ -161,18 +163,145 @@ class OrdersManager extends Component
             return;
         }
 
-        $this->selectedOrder->update([
-            'status_message' => $this->newStatus
-        ]);
+        // Si le statut n'a pas changé, on ne fait rien
+        if ($this->newStatus === $this->previousStatus) {
+            $this->dispatch('notify', [
+                'text' => 'Le statut est déjà défini sur "' . $this->newStatus . '"',
+                'type' => 'info',
+                'status' => 200
+            ]);
+            return;
+        }
 
-        $this->dispatch('notify', [
-            'text' => 'Statut de la commande mis à jour avec succès',
-            'type' => 'success',
-            'status' => 200
-        ]);
+        try {
+            // Gestion du stock selon le changement de statut
+            $this->handleStockManagement();
 
-        $this->loadStatistics();
-        $this->closeOrderModal();
+            // Mise à jour du statut
+            $this->selectedOrder->update([
+                'status_message' => $this->newStatus,
+                'updated_by' => auth()->id(),
+                'status_note' => $this->statusUpdateReason ?: null
+            ]);
+
+            $this->dispatch('notify', [
+                'text' => 'Statut de la commande mis à jour avec succès',
+                'type' => 'success',
+                'status' => 200
+            ]);
+
+            $this->loadStatistics();
+            $this->closeOrderModal();
+
+        } catch (\Exception $e) {
+            $this->dispatch('notify', [
+                'text' => 'Erreur lors de la mise à jour du statut: ' . $e->getMessage(),
+                'type' => 'error',
+                'status' => 500
+            ]);
+        }
+    }
+
+    /**
+     * Gère la gestion du stock selon les changements de statut
+     */
+    private function handleStockManagement()
+    {
+        $oldStatus = $this->previousStatus;
+        $newStatus = $this->newStatus;
+
+        // Si on annule une commande (quel que soit l'ancien statut)
+        if ($newStatus === 'Annulé') {
+            $this->returnItemsToStock();
+        }
+        // Si on change d'un statut "Annulé" vers un autre statut
+        elseif ($oldStatus === 'Annulé' && $newStatus !== 'Annulé') {
+            $this->removeItemsFromStock();
+        }
+        // Si on change entre statuts actifs (non annulés)
+        elseif ($oldStatus !== 'Annulé' && $newStatus !== 'Annulé') {
+            // Pas de changement de stock pour les transitions entre statuts actifs
+            return;
+        }
+    }
+
+    /**
+     * Retourne les articles au stock (pour annulation)
+     */
+    private function returnItemsToStock()
+    {
+        foreach ($this->selectedOrder->orderItems as $orderItem) {
+            if ($orderItem->product) {
+                // Si c'est un produit avec gestion de stock
+                if ($orderItem->product->manage_stock) {
+                    // Retour au stock principal du produit
+                    $orderItem->product->updateStock($orderItem->quantity, 'increase');
+                    
+                    // Si l'item a une couleur spécifique, retour au stock de couleur
+                    if ($orderItem->product_color_id && $orderItem->productColor) {
+                        $orderItem->product->updateColorStock(
+                            $orderItem->product_color_id, 
+                            $orderItem->quantity, 
+                            'increase'
+                        );
+                    }
+                }
+            }
+        }
+
+        // Log de l'action
+        \Log::info("Commande #{$this->selectedOrder->id} annulée - Stock retourné", [
+            'order_id' => $this->selectedOrder->id,
+            'items_count' => $this->selectedOrder->orderItems->count(),
+            'user_id' => auth()->id()
+        ]);
+    }
+
+    /**
+     * Retire les articles du stock (quand on repasse d'Annulé à un statut actif)
+     */
+    private function removeItemsFromStock()
+    {
+        foreach ($this->selectedOrder->orderItems as $orderItem) {
+            if ($orderItem->product) {
+                // Vérifier d'abord la disponibilité du stock
+                if ($orderItem->product->manage_stock) {
+                    $availableStock = $orderItem->product->stock_quantity;
+                    
+                    // Si stock couleur, vérifier le stock couleur
+                    if ($orderItem->product_color_id && $orderItem->productColor) {
+                        $colorStock = $orderItem->productColor->pivot->quantity ?? 0;
+                        if ($colorStock < $orderItem->quantity) {
+                            throw new \Exception("Stock insuffisant pour la couleur du produit: {$orderItem->product->name}");
+                        }
+                    }
+                    
+                    // Vérifier le stock général
+                    if ($availableStock < $orderItem->quantity) {
+                        throw new \Exception("Stock insuffisant pour le produit: {$orderItem->product->name}");
+                    }
+
+                    // Retirer du stock
+                    $orderItem->product->updateStock($orderItem->quantity, 'decrease');
+                    
+                    // Si l'item a une couleur spécifique, retirer du stock de couleur
+                    if ($orderItem->product_color_id && $orderItem->productColor) {
+                        $orderItem->product->updateColorStock(
+                            $orderItem->product_color_id, 
+                            $orderItem->quantity, 
+                            'decrease'
+                        );
+                    }
+                }
+            }
+        }
+
+        // Log de l'action
+        \Log::info("Commande #{$this->selectedOrder->id} réactivée - Stock déduit", [
+            'order_id' => $this->selectedOrder->id,
+            'items_count' => $this->selectedOrder->orderItems->count(),
+            'user_id' => auth()->id()
+        ]);
     }
 
     public function confirmDelete($orderId)
@@ -184,19 +313,34 @@ class OrdersManager extends Component
     public function deleteOrder()
     {
         if ($this->orderToDelete) {
-            // Supprimer les items de commande
-            OrderItem::where('order_id', $this->orderToDelete->id)->delete();
-            
-            // Supprimer la commande
-            $this->orderToDelete->delete();
-            
-            $this->dispatch('notify', [
-                'text' => 'Commande supprimée avec succès',
-                'type' => 'success',
-                'status' => 200
-            ]);
-            
-            $this->loadStatistics();
+            try {
+                // Avant suppression, retourner les articles au stock si la commande n'est pas annulée
+                if ($this->orderToDelete->status_message !== 'Annulé') {
+                    $this->selectedOrder = $this->orderToDelete;
+                    $this->returnItemsToStock();
+                }
+                
+                // Supprimer les items de commande
+                OrderItem::where('order_id', $this->orderToDelete->id)->delete();
+                
+                // Supprimer la commande
+                $this->orderToDelete->delete();
+                
+                $this->dispatch('notify', [
+                    'text' => 'Commande supprimée avec succès',
+                    'type' => 'success',
+                    'status' => 200
+                ]);
+                
+                $this->loadStatistics();
+                
+            } catch (\Exception $e) {
+                $this->dispatch('notify', [
+                    'text' => 'Erreur lors de la suppression: ' . $e->getMessage(),
+                    'type' => 'error',
+                    'status' => 500
+                ]);
+            }
         }
         
         $this->showDeleteModal = false;
@@ -275,13 +419,8 @@ class OrdersManager extends Component
         // Statuts disponibles
         $statuses = [
             'En cours de traitement',
-            'Confirmé',
-            'En préparation',
-            'Expédié',
-            'Livré',
             'Terminé',
             'Annulé',
-            'Remboursé'
         ];
         
         return view('livewire.admin.orders.orders-manager', [
@@ -290,42 +429,4 @@ class OrdersManager extends Component
             'statuses' => $statuses,
         ]);
     }
-
-
-    /* test gen pdf here - 22/09/25 */
-    /* public function generatePDF(): void
-    {
-        try {
-            $data = [
-                'order' => $this->order,
-                'orderTotal' => $this->orderTotal,
-                'totalItems' => $this->totalItems,
-                'generatedAt' => now()->format('d/m/Y à H:i'),
-            ];
-
-            $pdf = Pdf::loadView('pdf.order-invoice', $data)
-                ->setPaper('a4', 'portrait')
-                ->setOptions([
-                    'defaultFont' => 'DejaVu Sans',
-                    'isRemoteEnabled' => true,
-                    'isHtml5ParserEnabled' => true,
-                ]);
-
-            $filename = 'commande-' . $this->order->id . '-' . now()->format('Y-m-d') . '.pdf';
-            
-            return response()->streamDownload(
-                fn () => print($pdf->output()),
-                $filename,
-                ['Content-Type' => 'application/pdf']
-            );
-
-        } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'text' => 'Erreur lors de la génération PDF: ' . $e->getMessage(),
-                'type' => 'error',
-                'status' => 500
-            ]);
-        }
-    } */
-    
 }

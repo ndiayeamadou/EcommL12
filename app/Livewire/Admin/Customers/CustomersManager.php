@@ -222,7 +222,7 @@ class CustomersManager extends Component
     {
         $this->firstname = $customer->firstname ?? '';
         $this->lastname = $customer->lastname ?? '';
-        $this->email = $customer->email;
+        $this->email = $customer->email ?? '';
         $this->username = $customer->username ?? '';
         $this->gender = $customer->gender ?? '';
         $this->birth_date = $customer->birth_date?->format('Y-m-d') ?? '';

@@ -1,10 +1,12 @@
 <section class="w-full">
     @include('partials.settings-heading')
 
-    <x-settings.layout :heading="__('Profil')" :subheading="__('Mettre à jour votre nom et adresse email')">
+    <x-settings.layout :heading="__('Profil')" :subheading="__('Mettre à jour votre nom, adresse email et nom d\'utilisateur')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
             <flux:input wire:model="firstname" :label="__('Prénom(s)')" type="text" required autofocus autocomplete="firstname" />
             <flux:input wire:model="lastname" :label="__('Nom')" type="text" required autofocus autocomplete="lastname" />
+            
+            <flux:input wire:model="username" :label="__('Nom d\'utilisateur')" type="text" autofocus />
 
             <div>
                 <flux:input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
@@ -30,7 +32,7 @@
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">
-                    <flux:button variant="primary" type="submit" class="w-full">{{ __('Enregistrer') }}</flux:button>
+                    <flux:button variant="primary" type="submit" class="cursor-pointer w-full">{{ __('Enregistrer') }}</flux:button>
                 </div>
 
                 <x-action-message class="me-3" on="profile-updated">

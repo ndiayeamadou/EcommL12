@@ -175,7 +175,7 @@ class Product extends Model
             return asset('storage/' . $firstImage->image_path);
         }
         
-        return '/images/placeholder-product.jpg';
+        return '/images/default-product-picture.png';
     }
 
     public function getFormattedPriceAttribute()

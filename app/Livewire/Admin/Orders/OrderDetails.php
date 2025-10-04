@@ -6,24 +6,28 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\ProductColor;
 use Livewire\Component;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class OrderDetails extends Component
 {
     public Order $order;
+    
+    // Modals
     public bool $showEditModal = false;
     public bool $showStatusModal = false;
     public bool $showAddItemModal = false;
     public bool $showDeleteItemModal = false;
+    public bool $showStockDetailsModal = false;
+    
+    // Données sélectionnées
     public ?OrderItem $selectedItem = null;
     
-    // Édition de la commande
+    // Édition de commande
     #[Validate('required|string|max:255')]
     public string $fullname = '';
     
@@ -53,6 +57,10 @@ class OrderDetails extends Component
     public string $status_message = '';
     
     public string $status_note = '';
+    public string $previousStatus = '';
+    public bool $showStockWarning = false;
+    public string $stockWarningMessage = '';
+    public array $stockImpactDetails = [];
     
     // Ajout d'article
     public int $product_id = 0;
@@ -60,16 +68,17 @@ class OrderDetails extends Component
     public int $quantity = 1;
     public float $price = 0;
     
-    // Statistiques et données
+    // Données calculées
+    public float $orderTotal = 0;
+    public int $totalItems = 0;
     public array $statusHistory = [];
     public array $availableProducts = [];
     public array $availableStatuses = [];
-    public float $orderTotal = 0;
-    public int $totalItems = 0;
-
+    
+    // Configuration
     protected array $rules = [
-        'fullname' => 'nullable|string|max:255',
-        'email' => 'nullable|email|max:255',
+        'fullname' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
         'phone' => 'nullable|string|max:20',
         'address' => 'nullable|string|max:500',
         'city' => 'nullable|string|max:100',
@@ -82,30 +91,29 @@ class OrderDetails extends Component
         'price' => 'required|numeric|min:0',
     ];
 
-    protected array $messages = [
-        'fullname.required' => 'Le nom complet est obligatoire.',
-        'email.required' => 'L\'adresse email est obligatoire.',
-        'email.email' => 'Veuillez saisir une adresse email valide.',
-        'payment_mode.required' => 'Le mode de paiement est obligatoire.',
-        'payment_mode.in' => 'Mode de paiement invalide.',
-        'status_message.required' => 'Le statut est obligatoire.',
-        'product_id.required' => 'Veuillez sélectionner un produit.',
-        'product_id.exists' => 'Le produit sélectionné n\'existe pas.',
-        'quantity.required' => 'La quantité est obligatoire.',
-        'quantity.min' => 'La quantité doit être au moins 1.',
-        'price.required' => 'Le prix est obligatoire.',
-        'price.min' => 'Le prix doit être positif.',
-    ];
-
     public function mount(Order $order): void
     {
-        $this->order = $order->load(['user', 'orderItems.product.images', 'orderItems.productColor.color']);
-        $this->initializeData();
-        $this->calculateTotals();
-        $this->loadStatusHistory();
+        // CORRECTION : Charger les relations correctement
+        $this->order = $order->load([
+            'user', 
+            'orderItems.product.images', 
+            'orderItems.productColor.color', // Cette relation est correcte
+            'agent',
+            'updatedBy'
+        ]);
+        
+        $this->initializeComponent();
     }
 
-    private function initializeData(): void
+    private function initializeComponent(): void
+    {
+        $this->loadOrderData();
+        $this->calculateTotals();
+        $this->loadStatusHistory();
+        $this->loadAvailableData();
+    }
+
+    private function loadOrderData(): void
     {
         $this->fullname = $this->order->fullname;
         $this->email = $this->order->email ?? '';
@@ -116,27 +124,7 @@ class OrderDetails extends Component
         $this->payment_mode = $this->order->payment_mode ?? 'cash';
         $this->payment_id = $this->order->payment_id ?? '';
         $this->status_message = $this->order->status_message ?? 'En cours de traitement';
-
-        $this->availableStatuses = [
-            'En cours de traitement',
-            'Confirmé',
-            'En préparation',
-            'Expédié',
-            'En livraison',
-            'Livré',
-            'Terminé',
-            'En attente de paiement',
-            'Paiement confirmé',
-            'Annulé',
-            'Remboursé',
-            'Retourné'
-        ];
-
-        $this->availableProducts = Product::active()
-            ->with(['images', 'colors'])
-            ->orderBy('name')
-            ->get()
-            ->toArray();
+        $this->previousStatus = $this->order->status_message;
     }
 
     private function calculateTotals(): void
@@ -150,23 +138,51 @@ class OrderDetails extends Component
 
     private function loadStatusHistory(): void
     {
-        // Simuler un historique de statut (à adapter selon votre implémentation)
         $this->statusHistory = [
             [
                 'status' => 'En cours de traitement',
                 'date' => $this->order->created_at,
                 'note' => 'Commande créée',
-                //'user' => 'Système'
-                'user' => $this->order->agent->firstname . ' ' . $this->order->agent->lastname . ' ' . ($this->order->agent->customer_number)
-            ]/* ,
-            [
-                'status' => $this->order->status_message,
-                'date' => $this->order->created_at,
-                'note' => $this->order->status_note,
-                'user' => $this->order->agent_de_suivi->lastname ?? null . ' ' . $this->order->agent_de_suivi->firstname ?? null . ' ' . ($this->order->agent_de_suivi->customer_number ?? null)
-            ] */
+                'user' => $this->getAgentName($this->order->agent)
+            ]
         ];
+
+        // Ajouter les mises à jour de statut
+        if ($this->order->updated_at != $this->order->created_at && $this->order->updatedBy) {
+            $this->statusHistory[] = [
+                'status' => $this->order->status_message,
+                'date' => $this->order->updated_at,
+                'note' => $this->order->status_note ?? 'Mise à jour du statut',
+                'user' => $this->getAgentName($this->order->updatedBy)
+            ];
+        }
     }
+
+    private function getAgentName(?User $agent): string
+    {
+        if (!$agent) return 'Système';
+        
+        return trim($agent->firstname . ' ' . $agent->lastname) . 
+               ($agent->customer_number ? ' (' . $agent->customer_number . ')' : '');
+    }
+
+    private function loadAvailableData(): void
+    {
+        $this->availableStatuses = [
+            'En cours de traitement',
+            'Terminé',
+            'Annulé',
+        ];
+
+        // CORRECTION : Charger les produits avec les relations correctes
+        $this->availableProducts = Product::active()
+            ->with(['images', 'colors']) // Pas besoin de .color ici
+            ->orderBy('name')
+            ->get()
+            ->toArray();
+    }
+
+    // ==================== ACTIONS PRINCIPALES ====================
 
     public function showEditOrder(): void
     {
@@ -176,8 +192,8 @@ class OrderDetails extends Component
     public function updateOrder(): void
     {
         $this->validate([
-            'fullname' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255',
+            'fullname' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
@@ -196,28 +212,158 @@ class OrderDetails extends Component
                 'postal_code' => $this->postal_code,
                 'payment_mode' => $this->payment_mode,
                 'payment_id' => $this->payment_id,
+                'updated_by' => auth()->id(),
             ]);
 
             $this->dispatch('notify', [
-                'text' => 'Commande mise à jour avec succès.',
                 'type' => 'success',
-                'status' => 200
+                'text' => 'Commande mise à jour avec succès.'
             ]);
 
             $this->showEditModal = false;
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
-                'text' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
                 'type' => 'error',
-                'status' => 500
+                'text' => 'Erreur lors de la mise à jour: ' . $e->getMessage()
             ]);
         }
     }
 
     public function showUpdateStatus(): void
     {
+        $this->previousStatus = $this->order->status_message;
+        $this->status_message = $this->order->status_message;
+        $this->status_note = '';
+        $this->showStockWarning = false;
+        $this->stockWarningMessage = '';
+        $this->stockImpactDetails = [];
+        
         $this->showStatusModal = true;
+    }
+
+    public function updatedStatusMessage($newStatus): void
+    {
+        $this->analyzeStockImpact($newStatus);
+    }
+
+    private function analyzeStockImpact(string $newStatus): void
+    {
+        $this->showStockWarning = false;
+        $this->stockWarningMessage = '';
+        $this->stockImpactDetails = [];
+
+        // Annulation d'une commande active
+        if ($newStatus === 'Annulé' && $this->previousStatus !== 'Annulé') {
+            $this->prepareStockReturn();
+        }
+        // Réactivation d'une commande annulée
+        elseif ($newStatus !== 'Annulé' && $this->previousStatus === 'Annulé') {
+            $this->prepareStockDeduction();
+        }
+    }
+
+    private function prepareStockReturn(): void
+    {
+        $this->showStockWarning = true;
+        $this->stockWarningMessage = "✅ L'annulation retournera automatiquement les articles au stock.";
+        
+        $this->stockImpactDetails = [
+            'type' => 'return',
+            'items' => [],
+            'totalItems' => 0
+        ];
+
+        foreach ($this->order->orderItems as $item) {
+            if ($item->product) {
+                // CORRECTION : Accéder correctement au nom de la couleur
+                $colorName = null;
+                if ($item->productColor && $item->productColor->color) {
+                    $colorName = $item->productColor->color->name;
+                }
+                
+                $this->stockImpactDetails['items'][] = [
+                    'product' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'color' => $colorName,
+                    'manages_stock' => $item->product->manage_stock
+                ];
+                $this->stockImpactDetails['totalItems'] += $item->quantity;
+            }
+        }
+    }
+
+    private function prepareStockDeduction(): void
+    {
+        $stockCheck = $this->checkStockAvailability();
+        
+        if ($stockCheck['success']) {
+            $this->showStockWarning = true;
+            $this->stockWarningMessage = "📦 La réactivation déduira à nouveau les articles du stock.";
+        } else {
+            $this->showStockWarning = true;
+            $this->stockWarningMessage = "❌ Stock insuffisant : " . $stockCheck['message'];
+        }
+
+        $this->stockImpactDetails = [
+            'type' => 'deduction',
+            'items' => [],
+            'totalItems' => 0,
+            'stock_available' => $stockCheck['success']
+        ];
+
+        foreach ($this->order->orderItems as $item) {
+            if ($item->product) {
+                // CORRECTION : Accéder correctement aux données de couleur
+                $colorName = null;
+                $colorStock = null;
+                
+                if ($item->productColor && $item->productColor->color) {
+                    $colorName = $item->productColor->color->name;
+                    $colorStock = $item->productColor->quantity;
+                }
+                
+                $this->stockImpactDetails['items'][] = [
+                    'product' => $item->product->name,
+                    'quantity' => $item->quantity,
+                    'current_stock' => $item->product->stock_quantity,
+                    'color' => $colorName,
+                    'color_stock' => $colorStock,
+                    'manages_stock' => $item->product->manage_stock,
+                    'sufficient_stock' => $item->product->stock_quantity >= $item->quantity
+                ];
+                $this->stockImpactDetails['totalItems'] += $item->quantity;
+            }
+        }
+    }
+
+    private function checkStockAvailability(): array
+    {
+        foreach ($this->order->orderItems as $orderItem) {
+            if ($orderItem->product && $orderItem->product->manage_stock) {
+                // Vérifier le stock général
+                if ($orderItem->product->stock_quantity < $orderItem->quantity) {
+                    return [
+                        'success' => false,
+                        'message' => "{$orderItem->product->name} : Stock disponible {$orderItem->product->stock_quantity}, requis {$orderItem->quantity}"
+                    ];
+                }
+
+                // Vérifier le stock de couleur
+                if ($orderItem->product_color_id && $orderItem->productColor) {
+                    $colorStock = $orderItem->productColor->quantity ?? 0;
+                    if ($colorStock < $orderItem->quantity) {
+                        $colorName = $orderItem->productColor->color->name ?? 'couleur sélectionnée';
+                        return [
+                            'success' => false,
+                            'message' => "{$orderItem->product->name} ($colorName) : Stock couleur disponible $colorStock, requis {$orderItem->quantity}"
+                        ];
+                    }
+                }
+            }
+        }
+
+        return ['success' => true];
     }
 
     public function updateStatus(): void
@@ -226,39 +372,178 @@ class OrderDetails extends Component
             'status_message' => 'required|string|max:100',
         ]);
 
+        // Vérifier si le statut a changé
+        if ($this->status_message === $this->previousStatus) {
+            $this->dispatch('notify', [
+                'type' => 'info',
+                'text' => 'Le statut est déjà "' . $this->status_message . '"'
+            ]);
+            $this->closeStatusModal();
+            return;
+        }
+
         try {
+            // Gérer l'impact sur le stock
+            $stockResult = $this->executeStockManagement();
+            if (!$stockResult['success']) {
+                $this->dispatch('notify', [
+                    'type' => 'error',
+                    'text' => $stockResult['message']
+                ]);
+                return;
+            }
+
+            // Mettre à jour le statut
             $this->order->update([
                 'status_message' => $this->status_message,
-                'status_note' => $this->status_note,
-                'updated_by' => auth()->user()->id,
+                'status_note' => $this->status_note ?: null,
+                'updated_by' => auth()->id(),
             ]);
 
-            // Ajouter à l'historique
-            $this->statusHistory[] = [
-                'status' => $this->status_message,
-                'date' => now(),
-                'note' => $this->status_note,
-                //'user' => auth()->user()->name ?? 'Admin'
-                'user' => auth()->user()->firstname .' '. auth()->user()->lastname ?? 'Admin'
-            ];
+            // Recharger les données
+            $this->order->refresh();
+            $this->loadStatusHistory();
 
             $this->dispatch('notify', [
-                'text' => 'Statut mis à jour avec succès.',
                 'type' => 'success',
-                'status' => 200
+                'text' => 'Statut mis à jour. ' . $stockResult['message']
             ]);
 
-            $this->showStatusModal = false;
-            $this->status_note = '';
+            $this->closeStatusModal();
 
         } catch (\Exception $e) {
+            Log::error("Erreur mise à jour statut commande #{$this->order->id}: " . $e->getMessage());
+            
             $this->dispatch('notify', [
-                'text' => 'Erreur lors de la mise à jour: ' . $e->getMessage(),
                 'type' => 'error',
-                'status' => 500
+                'text' => 'Erreur lors de la mise à jour: ' . $e->getMessage()
             ]);
         }
     }
+
+    private function executeStockManagement(): array
+    {
+        // Annulation : retour au stock
+        if ($this->status_message === 'Annulé' && $this->previousStatus !== 'Annulé') {
+            return $this->returnItemsToStock();
+        }
+        
+        // Réactivation : déduction du stock
+        if ($this->status_message !== 'Annulé' && $this->previousStatus === 'Annulé') {
+            return $this->deductItemsFromStock();
+        }
+        
+        return ['success' => true, 'message' => ''];
+    }
+
+    private function returnItemsToStock(): array
+    {
+        try {
+            $returnedItems = [];
+            
+            foreach ($this->order->orderItems as $orderItem) {
+                if ($orderItem->product && $orderItem->product->manage_stock) {
+                    // Retour au stock principal
+                    $oldStock = $orderItem->product->stock_quantity;
+                    $orderItem->product->updateStock($orderItem->quantity, 'increase');
+                    
+                    $returnedItems[] = [
+                        'product' => $orderItem->product->name,
+                        'quantity' => $orderItem->quantity,
+                        'old_stock' => $oldStock,
+                        'new_stock' => $orderItem->product->fresh()->stock_quantity
+                    ];
+
+                    // Retour au stock de couleur
+                    if ($orderItem->product_color_id && $orderItem->productColor) {
+                        $orderItem->product->updateColorStock(
+                            $orderItem->product_color_id, 
+                            $orderItem->quantity, 
+                            'increase'
+                        );
+                    }
+                }
+            }
+
+            Log::info("Commande #{$this->order->id} annulée - Stock retourné", [
+                'items' => $returnedItems,
+                'user_id' => auth()->id()
+            ]);
+
+            return [
+                'success' => true, 
+                'message' => count($returnedItems) . ' article(s) retourné(s) au stock.'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Erreur retour stock commande #{$this->order->id}", ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Erreur lors du retour du stock: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    private function deductItemsFromStock(): array
+    {
+        try {
+            // Vérifier la disponibilité
+            $stockCheck = $this->checkStockAvailability();
+            if (!$stockCheck['success']) {
+                return $stockCheck;
+            }
+
+            $deductedItems = [];
+            
+            foreach ($this->order->orderItems as $orderItem) {
+                if ($orderItem->product && $orderItem->product->manage_stock) {
+                    // Déduction du stock principal
+                    $oldStock = $orderItem->product->stock_quantity;
+                    $orderItem->product->updateStock($orderItem->quantity, 'decrease');
+                    
+                    $deductedItems[] = [
+                        'product' => $orderItem->product->name,
+                        'quantity' => $orderItem->quantity,
+                        'old_stock' => $oldStock,
+                        'new_stock' => $orderItem->product->fresh()->stock_quantity
+                    ];
+
+                    // Déduction du stock de couleur
+                    if ($orderItem->product_color_id && $orderItem->productColor) {
+                        $orderItem->product->updateColorStock(
+                            $orderItem->product_color_id, 
+                            $orderItem->quantity, 
+                            'decrease'
+                        );
+                    }
+                }
+            }
+
+            Log::info("Commande #{$this->order->id} réactivée - Stock déduit", [
+                'items' => $deductedItems,
+                'user_id' => auth()->id()
+            ]);
+
+            return [
+                'success' => true, 
+                'message' => count($deductedItems) . ' article(s) déduit(s) du stock.'
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Erreur déduction stock commande #{$this->order->id}", ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Erreur lors de la déduction du stock: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    public function showStockImpactDetails(): void
+    {
+        $this->showStockDetailsModal = true;
+    }
+
+    // ==================== GESTION DES ARTICLES ====================
 
     public function showAddItem(): void
     {
@@ -287,19 +572,16 @@ class OrderDetails extends Component
             $this->calculateTotals();
 
             $this->dispatch('notify', [
-                'text' => 'Article ajouté avec succès.',
                 'type' => 'success',
-                'status' => 200
+                'text' => 'Article ajouté avec succès.'
             ]);
 
-            $this->showAddItemModal = false;
-            $this->resetItemForm();
+            $this->closeAddItemModal();
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
-                'text' => 'Erreur lors de l\'ajout: ' . $e->getMessage(),
                 'type' => 'error',
-                'status' => 500
+                'text' => 'Erreur lors de l\'ajout: ' . $e->getMessage()
             ]);
         }
     }
@@ -312,32 +594,41 @@ class OrderDetails extends Component
 
     public function deleteOrderItem(): void
     {
-        if (!$this->selectedItem) {
-            return;
-        }
+        if (!$this->selectedItem) return;
 
         try {
+            $itemName = $this->selectedItem->product->name ?? 'Article';
             $this->selectedItem->delete();
+            
             $this->order->refresh();
             $this->calculateTotals();
 
             $this->dispatch('notify', [
-                'text' => 'Article supprimé avec succès.',
                 'type' => 'success',
-                'status' => 200
+                'text' => "'$itemName' supprimé avec succès."
             ]);
 
-            $this->showDeleteItemModal = false;
-            $this->selectedItem = null;
+            $this->closeDeleteItemModal();
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
-                'text' => 'Erreur lors de la suppression: ' . $e->getMessage(),
                 'type' => 'error',
-                'status' => 500
+                'text' => 'Erreur lors de la suppression: ' . $e->getMessage()
             ]);
         }
     }
+
+    public function updatedProductId($productId): void
+    {
+        if ($productId > 0) {
+            $product = Product::find($productId);
+            if ($product) {
+                $this->price = $product->sale_price ?: $product->price;
+            }
+        }
+    }
+
+    // ==================== ACTIONS PDF & EMAIL ====================
 
     public function generatePDF()
     {
@@ -349,88 +640,29 @@ class OrderDetails extends Component
                 'generatedAt' => now()->format('d/m/Y à H:i'),
             ];
 
-            //$pdf = Pdf::loadView('pdf.order-invoice', $data)
             $pdf = Pdf::loadView('pdf.order-invoice-demie-page', $data)
                 ->setPaper('a4', 'portrait')
                 ->setOptions([
                     'defaultFont' => 'DejaVu Sans',
                     'isRemoteEnabled' => true,
-                    'isHtml5ParserEnabled' => true,
                 ]);
 
             $filename = 'commande-' . $this->order->id . '-' . now()->format('Y-m-d') . '.pdf';
             
             return response()->streamDownload(
                 fn () => print($pdf->output()),
-                $filename,
-                ['Content-Type' => 'application/pdf']
+                $filename
             );
 
         } catch (\Exception $e) {
             $this->dispatch('notify', [
-                'text' => 'Erreur lors de la génération PDF: ' . $e->getMessage(),
                 'type' => 'error',
-                'status' => 500
+                'text' => 'Erreur génération PDF: ' . $e->getMessage()
             ]);
         }
     }
 
-    public function sendOrderEmail(): void
-    {
-        if (!$this->order->email) {
-            $this->dispatch('notify', [
-                'text' => 'Aucune adresse email disponible pour ce client.',
-                'type' => 'warning',
-                'status' => 400
-            ]);
-            return;
-        }
-
-        try {
-            // Générer le PDF en mémoire
-            $data = [
-                'order' => $this->order,
-                'orderTotal' => $this->orderTotal,
-                'totalItems' => $this->totalItems,
-                'generatedAt' => now()->format('d/m/Y à H:i'),
-            ];
-
-            $pdf = Pdf::loadView('pdf.order-invoice', $data)
-                ->setPaper('a4', 'portrait');
-
-            // Envoyer l'email avec le PDF en pièce jointe
-            Mail::send('emails.order-confirmation', $data, function ($message) use ($pdf) {
-                $message->to($this->order->email, $this->order->fullname)
-                    ->subject('Confirmation de commande #' . $this->order->id)
-                    ->attachData($pdf->output(), 'commande-' . $this->order->id . '.pdf', [
-                        'mime' => 'application/pdf',
-                    ]);
-            });
-
-            $this->dispatch('notify', [
-                'text' => 'Email envoyé avec succès à ' . $this->order->email,
-                'type' => 'success',
-                'status' => 200
-            ]);
-
-        } catch (\Exception $e) {
-            $this->dispatch('notify', [
-                'text' => 'Erreur lors de l\'envoi de l\'email: ' . $e->getMessage(),
-                'type' => 'error',
-                'status' => 500
-            ]);
-        }
-    }
-
-    public function updatedProductId(): void
-    {
-        if ($this->product_id > 0) {
-            $product = Product::find($this->product_id);
-            if ($product) {
-                $this->price = $product->sale_price ?: $product->price;
-            }
-        }
-    }
+    // ==================== MÉTHODES UTILITAIRES ====================
 
     private function resetItemForm(): void
     {
@@ -438,8 +670,10 @@ class OrderDetails extends Component
         $this->product_color_id = 0;
         $this->quantity = 1;
         $this->price = 0;
-        $this->resetErrorBag(['product_id', 'quantity', 'price']);
+        $this->resetErrorBag();
     }
+
+    // ==================== FERMETURE DES MODALS ====================
 
     public function closeEditModal(): void
     {
@@ -451,7 +685,10 @@ class OrderDetails extends Component
     {
         $this->showStatusModal = false;
         $this->status_note = '';
-        $this->resetErrorBag(['status_message']);
+        $this->showStockWarning = false;
+        $this->stockWarningMessage = '';
+        $this->stockImpactDetails = [];
+        $this->resetErrorBag();
     }
 
     public function closeAddItemModal(): void
@@ -465,6 +702,13 @@ class OrderDetails extends Component
         $this->showDeleteItemModal = false;
         $this->selectedItem = null;
     }
+
+    public function closeStockDetailsModal(): void
+    {
+        $this->showStockDetailsModal = false;
+    }
+
+    // ==================== RENDU ====================
 
     public function render()
     {

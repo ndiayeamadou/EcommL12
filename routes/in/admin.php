@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Admin\Company\CompanyIndex;
 use App\Livewire\Admin\Customers\CustomersManager;
 use App\Livewire\Admin\Dashboard\EcommerceDashboard;
 use App\Livewire\Admin\Orders\OrdersDashboard;
@@ -10,7 +11,10 @@ use App\Livewire\Admin\Users\AdminUsersManager;
 use Illuminate\Support\Facades\Route;
 
 // Routes POS (Point of Sale)
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'adminSys'])->group(function () {
+    /* Company */
+    Route::get('/company', CompanyIndex::class)->name('company');
+
     Route::prefix('pos')->name('pos.')->group(function () {
         // Interface principale POS
         Route::get('/interface', PosInterface::class)->name('interface');
@@ -62,11 +66,10 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::prefix('users')->name('users.')->group(function () {
         Route::get('/', AdminUsersManager::class)->name('index');
     });
+
+
+    Route::get('/standard-dashboard', \App\Livewire\Admin\Dashboard\StandardDashboard::class)->middleware('auth')->name('standard-dashboard');
+    Route::get('/super-dashboard', \App\Livewire\Admin\Dashboard\SuperAdminDashboard::class)->middleware('auth')->name('super-admin-dashboard');
+
 });
 
-
-// Dans routes/web.php
-//Route::get('/dashboard', EcommerceDashboard::class)->middleware('auth')->name('dashboard');
-Route::get('/dashboard', \App\Livewire\Admin\Dashboard\Dashboard::class)->middleware('auth')->name('dashboard');
-Route::get('/standard-dashboard', \App\Livewire\Admin\Dashboard\StandardDashboard::class)->middleware('auth')->name('standard-dashboard');
-Route::get('/super-dashboard', \App\Livewire\Admin\Dashboard\SuperAdminDashboard::class)->middleware('auth')->name('super-admin-dashboard');

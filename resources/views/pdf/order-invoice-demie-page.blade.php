@@ -317,12 +317,12 @@
         <!-- En-tête compact -->
         <div class="invoice-header">
             <div class="company-brand">
-                <div class="company-name">BEAUTE AFRICAINE</div>
+                <div class="company-name">BEAUTE AFRICAINE SHOP</div>
                 <div class="company-details">
                     {{-- 123 Rue de l'Commerce, Dakar<br> --}}
                     Marché Central, Mbour, en face village artisanal<br>
                     {{-- Tél: +221 33 XXX XX XX • NINEA: 123456789 --}}
-                    Tél: +221 76 631 23 88
+                    Tél: +221 76 631 23 88 • NINEA: 012402351
                 </div>
             </div>
             <div class="invoice-meta">

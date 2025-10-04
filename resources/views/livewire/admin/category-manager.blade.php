@@ -1,7 +1,7 @@
 <!-- resources\views\livewire\admin\category-manager.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- Header avec animations -->
-    <div class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-30">
+    <div class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-1">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
                 <div class="flex items-center space-x-4">
@@ -386,6 +386,18 @@
             </div>
         </div>
     @endif
+
+
+    <!-- État de chargement -->
+    <div wire:loading.flex class="fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-purple-500 border-t-transparent"></div>
+            <div>
+                <p class="text-lg font-medium text-gray-900">Traitement en cours...</p>
+                <p class="text-sm text-gray-500">Gestion des catégories</p>
+            </div>
+        </div>
+    </div>
 
     <style>
         @keyframes fade-in {

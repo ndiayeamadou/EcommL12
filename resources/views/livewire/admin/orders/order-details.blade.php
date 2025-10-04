@@ -1,3 +1,4 @@
+<!-- resources\views\livewire\admin\orders\order-details.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
     <!-- Header avec actions -->
     <div class="mb-8">
@@ -34,8 +35,17 @@
                                 'Remboursé' => 'bg-gray-100 text-gray-800 border-gray-200',
                             ];
                         @endphp
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {{ $statusColors[$order->status_message] ?? 'bg-gray-100 text-gray-800 border-gray-200' }}">
+                        {{-- <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {{ $statusColors[$order->status_message] ?? 'bg-gray-100 text-gray-800 border-gray-200' }}">
                             <div class="w-2 h-2 rounded-full {{ str_replace('bg-', 'bg-', $statusColors[$order->status_message] ?? 'bg-gray-400') }} mr-2 animate-pulse"></div>
+                            {{ $order->status_message }}
+                        </span> --}}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border {{ $statusColors[$order->status_message] ?? 'bg-gray-100 text-gray-800 border-gray-200' }}">
+                            <div class="w-2 h-2 rounded-full mr-2 
+                                @if($order->status_message === 'Annulé') bg-red-500
+                                @elseif($order->status_message === 'Terminé') bg-green-500
+                                @elseif($order->status_message === 'Livré') bg-emerald-500
+                                @else bg-blue-500 @endif">
+                            </div>
                             {{ $order->status_message }}
                         </span>
                     </div>
@@ -216,7 +226,7 @@
                                                     <span class="text-sm text-gray-600 mr-2">Couleur:</span>
                                                     <div class="flex items-center">
                                                         <div class="w-4 h-4 rounded-full border border-gray-300 mr-2" 
-                                                             style="background-color: {{ $item->productColor->color->hex_code }}"></div>
+                                                            style="background-color: {{ $item->productColor->color->hex_code ?? '#ccc' }}"></div>
                                                         <span class="text-sm font-medium text-gray-700">{{ $item->productColor->color->name }}</span>
                                                     </div>
                                                 </div>
@@ -601,14 +611,78 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nouveau statut *</label>
                             <select 
-                                wire:model="status_message"
+                                wire:model.live="status_message"
                                 class="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 @error('status_message') border-red-500 @enderror">
                                 @foreach($availableStatuses as $status)
-                                    <option value="{{ $status }}">{{ $status }}</option>
+                                    <option value="{{ $status }}" 
+                                        @if($status === 'Annulé') class="text-red-600 font-medium" @endif>
+                                        {{ $status }}
+                                    </option>
                                 @endforeach
                             </select>
                             @error('status_message') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
+
+                        <!-- Alerte impact stock -->
+                        @if($showStockWarning)
+                            <div class="p-3 rounded-lg border 
+                                @if(str_contains($stockWarningMessage, '❌')) bg-red-50 border-red-200 text-red-800
+                                @elseif(str_contains($stockWarningMessage, '✅')) bg-green-50 border-green-200 text-green-800
+                                @else bg-yellow-50 border-yellow-200 text-yellow-800 @endif">
+                                <div class="flex items-start">
+                                    @if(str_contains($stockWarningMessage, '❌'))
+                                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                    @elseif(str_contains($stockWarningMessage, '✅'))
+                                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    @else
+                                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                    @endif
+                                    <div class="text-sm">
+                                        {!! $stockWarningMessage !!}
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Informations sur le changement -->
+                        @if($status_message !== $previousStatus)
+                            <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                <div class="text-sm text-gray-600">
+                                    <strong>Changement :</strong> 
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
+                                        {{ $previousStatus }}
+                                    </span>
+                                    <span class="mx-2">→</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                        @if($status_message === 'Annulé') bg-red-100 text-red-800
+                                        @elseif($status_message === 'Terminé') bg-green-100 text-green-800
+                                        @else bg-blue-100 text-blue-800 @endif">
+                                        {{ $status_message }}
+                                    </span>
+                                </div>
+                                @if($status_message === 'Annulé' && $previousStatus !== 'Annulé')
+                                    <div class="text-xs text-green-600 mt-1 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Les {{ $order->orderItems->count() }} articles seront retournés au stock
+                                    </div>
+                                @elseif($previousStatus === 'Annulé' && $status_message !== 'Annulé')
+                                    <div class="text-xs text-orange-600 mt-1 flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        Les {{ $order->orderItems->count() }} articles seront déduits du stock
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Note (optionnel)</label>
@@ -624,16 +698,23 @@
                         <button 
                             type="button"
                             wire:click="closeStatusModal"
-                            class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                            wire:loading.attr="disabled"
+                            class="cursor-pointer px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-colors duration-200 disabled:opacity-50">
                             Annuler
                         </button>
                         <button 
                             type="submit"
-                            class="cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            wire:loading.attr="disabled"
+                            class="cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center disabled:opacity-50">
+                            <svg wire:loading wire:target="updateStatus" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <svg wire:loading.remove wire:target="updateStatus" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                             </svg>
-                            Mettre à jour
+                            <span wire:loading.remove wire:target="updateStatus">Mettre à jour</span>
+                            <span wire:loading wire:target="updateStatus">Mise à jour...</span>
                         </button>
                     </div>
                 </form>

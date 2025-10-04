@@ -1,7 +1,7 @@
 <!-- resources/views/livewire/admin/products/products-index.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
     <!-- Header avec animations -->
-    <div class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-30">
+    <div class="bg-white/80 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-1">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
                 <div class="flex items-center space-x-4">
@@ -91,6 +91,7 @@
                         <span class="text-blue-800 font-medium">
                             {{ count($selectedProducts) }} produit(s) sélectionné(s)
                         </span>
+                        @can('manage_system_users')
                         <div class="flex flex-wrap gap-2">
                             <button wire:click="bulkUpdateStatus('active')"
                                     class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-1">
@@ -106,7 +107,6 @@
                                 </svg>
                                 <span>Désactiver</span>
                             </button>
-                            @can('manage_system_users')
                             <button wire:click="bulkDelete"
                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ces produits ?')"
                                     class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center space-x-1">
@@ -115,8 +115,8 @@
                                 </svg>
                                 <span>Supprimer</span>
                             </button>
-                            @endcan
                         </div>
+                        @endcan
                     </div>
                 </div>
             @endif
@@ -133,13 +133,13 @@
                 <!-- Toggle vue -->
                 <div class="flex bg-white/80 rounded-lg p-1 border border-gray-200">
                     <button wire:click="$set('viewMode', 'grid')"
-                            class="p-2 rounded-md {{ $viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">
+                            class="cursor-pointer p-2 rounded-md {{ $viewMode === 'grid' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                         </svg>
                     </button>
-                    <button wire:click="$set('viewMode', 'list')"
-                            class="p-2 rounded-md {{ $viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">
+                    <button wire:click="$set('viewMode', 'list')" title="liste"
+                            class="cursor-pointer p-2 rounded-md {{ $viewMode === 'list' ? 'bg-blue-100 text-blue-600' : 'text-gray-500 hover:text-gray-700' }} transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
                         </svg>

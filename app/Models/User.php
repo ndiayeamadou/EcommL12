@@ -203,4 +203,40 @@ class User extends Authenticatable
             default => 'CUST' // Valeur par défaut au cas où
         };
     }
+
+
+    /* if user is suspended - call it in user list */
+    public function suspendUser()
+    {
+        //$this->suspended_at = now();
+        //$this->save();
+        /* OR */
+        $this->forceFill(['suspended_at' => $this->freshTimestamp()])->save();
+    }
+    public function unsuspendUser()
+    {
+        /* $this->suspended_at = NULL;
+        $this->save(); */
+        /* OR */
+        $this->forceFill(['suspended_at' => NULL])->save();
+    }
+
+    public function isSuspended()
+    {
+        return $this->suspended_at ? true : false;
+    }
+
+    /* last login & last ip - called it in Login*/
+    public function lastLoginUpdate()
+    {
+        $this->last_login_at = now();
+        $this->last_login_ip = request()->ip();
+        $this->save();
+    }
+
+    public function userDetail()
+    {
+        return $this->hasOne(UserDetail::class, 'user_id', 'id');
+    }
+    
 }

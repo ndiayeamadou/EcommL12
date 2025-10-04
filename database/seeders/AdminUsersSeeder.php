@@ -213,11 +213,12 @@ class AdminUsersSeeder extends Seeder
             ['email' => 'superadmin@beauteafricaine.com'],
             [
                 //'name' => 'Super Administrateur',
-                'firstname' => 'Super',
-                'lastname' => 'Administrateur',
-                'username' => 'superadmin',
+                'firstname' => 'Aziz',
+                'lastname' => 'DIOP',
+                'username' => 'aziz',
                 'type' => User::TYPE_ADMIN,
-                'password' => Hash::make('SuperAdmin@2025!'),
+                //'password' => Hash::make('SuperAdmin@2025!'),
+                'password' => Hash::make('766312388'),
                 'email_verified_at' => now(),
             ]
         );
@@ -226,10 +227,10 @@ class AdminUsersSeeder extends Seeder
         
         // Créer les détails
         $superAdmin->updateDetails([
-            'phone' => '+221 77 123 45 67',
-            'address' => '123 Avenue de l\'Indépendance',
-            'city' => 'Dakar',
-            'postal_code' => '10000',
+            'phone' => '766312388',
+            'address' => 'Mbour quartier...',
+            'city' => 'Mbour',
+            'postal_code' => '',
             'country' => 'Sénégal',
         ]);
 
@@ -243,19 +244,19 @@ class AdminUsersSeeder extends Seeder
     {
         $administrators = [
             [
-                'firstname' => 'Amadou',
+                'firstname' => 'Oulèye',
                 'lastname' => 'DIOP',
-                'email' => 'amadou.diop@beauteafricaine.com',
-                'username' => 'amadou.diop',
-                'phone' => '+221 77 234 56 78',
-                'gender' => 'male',
+                'email' => 'test@gmail.com',
+                'username' => 'ouleye221',
+                'phone' => '783546917',
+                'gender' => 'female',
             ],
             [
                 'firstname' => 'Fatou',
                 'lastname' => 'NDIAYE',
                 'email' => 'fatou.ndiaye@beauteafricaine.com',
                 'username' => 'fatou.ndiaye',
-                'phone' => '+221 76 345 67 89',
+                'phone' => '',
                 'gender' => 'female',
             ],
         ];
@@ -279,7 +280,7 @@ class AdminUsersSeeder extends Seeder
             
             $admin->updateDetails([
                 'phone' => $adminData['phone'],
-                'city' => 'Dakar',
+                'city' => 'Mbour',
                 'country' => 'Sénégal',
             ]);
         }

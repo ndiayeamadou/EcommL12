@@ -12,11 +12,11 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+/* Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified', 'adminSys'])
+    ->name('dashboard'); */
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'adminSys'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', Profile::class)->name('settings.profile');
@@ -25,7 +25,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function() {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'adminSys'])->group(function() {
     Route::get('categories', CategoryManager::class)->name('categories');
     Route::get('produits', ProductsIndex::class)->name('products.index');
     Route::get('produit/creation', ProductCreate::class)->name('products.create');

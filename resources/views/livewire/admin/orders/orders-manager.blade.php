@@ -1,3 +1,4 @@
+<!-- resources\views\livewire\admin\orders\orders-manager.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-4 sm:p-6">
     <!-- Header avec statistiques -->
     <div class="mb-8">
@@ -534,22 +535,96 @@
                                 </svg>
                                 Mettre à jour le Statut
                             </h4>
-                            <div class="flex flex-col sm:flex-row gap-4">
-                                <div class="flex-1">
-                                    <select wire:model="newStatus" class="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                                        @foreach($statuses as $status)
-                                            <option value="{{ $status }}">{{ $status }}</option>
-                                        @endforeach
-                                    </select>
+                            
+                            <!-- Alerte information sur la gestion du stock -->
+                            @if($selectedOrder && $selectedOrder->status_message !== $newStatus)
+                                <div class="mb-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                        <div class="text-sm text-yellow-800">
+                                            @if($newStatus === 'Annulé')
+                                                <strong>Attention :</strong> L'annulation de la commande retournera automatiquement les quantités au stock.
+                                            @elseif($selectedOrder->status_message === 'Annulé' && $newStatus !== 'Annulé')
+                                                <strong>Attention :</strong> La réactivation de la commande déduira à nouveau les quantités du stock.
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
-                                <button 
-                                    wire:click="updateOrderStatus"
-                                    class="cursor-pointer inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                    Mettre à jour
-                                </button>
+                            @endif
+
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Nouveau Statut</label>
+                                        <select wire:model="newStatus" class="cursor-pointer w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                            @foreach($statuses as $status)
+                                                <option value="{{ $status }}" 
+                                                    @if($status === 'Annulé') class="text-red-600 font-medium" @endif>
+                                                    {{ $status }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Raison du changement (optionnel)</label>
+                                        <input 
+                                            type="text" 
+                                            wire:model="statusUpdateReason"
+                                            placeholder="Ex: Client a annulé la commande..."
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                                    </div>
+                                </div>
+
+                                <!-- Informations sur l'impact du changement -->
+                                @if($selectedOrder && $selectedOrder->status_message !== $newStatus)
+                                    <div class="p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                        <div class="text-sm text-gray-600">
+                                            <strong>Statut actuel :</strong> 
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ml-2">
+                                                {{ $selectedOrder->status_message }}
+                                            </span>
+                                        </div>
+                                        @if($newStatus === 'Annulé')
+                                            <div class="text-sm text-green-600 mt-1">
+                                                ✅ Les {{ $selectedOrder->orderItems->count() }} articles seront retournés au stock
+                                            </div>
+                                        @elseif($selectedOrder->status_message === 'Annulé' && $newStatus !== 'Annulé')
+                                            <div class="text-sm text-orange-600 mt-1">
+                                                📦 Les {{ $selectedOrder->orderItems->count() }} articles seront déduits du stock
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <button 
+                                        wire:click="updateOrderStatus"
+                                        wire:loading.attr="disabled"
+                                        wire:target="updateOrderStatus"
+                                        class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <svg wire:loading wire:target="updateOrderStatus" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <svg wire:loading.remove wire:target="updateOrderStatus" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span wire:loading.remove wire:target="updateOrderStatus">Mettre à jour</span>
+                                        <span wire:loading wire:target="updateOrderStatus">Mise à jour...</span>
+                                    </button>
+                                    
+                                    <button 
+                                        wire:click="closeOrderModal"
+                                        class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium rounded-lg transition-all duration-200">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                        Annuler
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

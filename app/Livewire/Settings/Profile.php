@@ -13,6 +13,7 @@ class Profile extends Component
     public string $name = '';
     public string $firstname = '';
     public string $lastname = '';
+    public string $username = '';
 
     public string $email = '';
 
@@ -24,6 +25,7 @@ class Profile extends Component
         //$this->name = Auth::user()->name;
         $this->firstname = Auth::user()->firstname;
         $this->lastname = Auth::user()->lastname;
+        $this->username = Auth::user()->username;
         $this->email = Auth::user()->email;
     }
 
@@ -38,6 +40,15 @@ class Profile extends Component
             //'name' => ['required', 'string', 'max:255'],
             'firstname' => ['required', 'string', 'max:255'],
             'lastname' => ['required', 'string', 'max:255'],
+
+            'username' => [
+                'nullable',
+                'string',
+                'min:4',
+                'max:15',
+                Rule::unique(User::class)->ignore($user->id),
+                'alpha_dash',
+            ],
 
             'email' => [
                 'required',
