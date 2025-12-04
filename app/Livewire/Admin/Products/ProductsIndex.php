@@ -23,7 +23,7 @@ class ProductsIndex extends Component
     public $brandFilter = '';
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
-    public $perPage = 12;
+    public $perPage = 40;
     public $selectedProducts = [];
     public $selectAll = false;
     public $viewMode = 'grid'; // Nouvelle variable pour le mode d'affichage

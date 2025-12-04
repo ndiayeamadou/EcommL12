@@ -447,6 +447,17 @@
         </div>
     </div>
 
+    <!-- États de chargement -->
+    <div wire:loading.flex class="fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+            <div>
+                <p class="text-lg font-medium text-gray-900">Chargement en cours...</p>
+                <p class="text-sm text-gray-500">Traitement des données clients</p>
+            </div>
+        </div>
+    </div>
+
     <script>
         function checkoutApp() {
             return {

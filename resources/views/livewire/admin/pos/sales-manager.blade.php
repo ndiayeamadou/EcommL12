@@ -23,7 +23,7 @@
                 
                 <!-- Category Filter -->
                 <div class="w-full md:w-48">
-                    <select wire:model.live="categoryFilter" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+                    <select wire:model.live="categoryFilter" class="cursor-pointer block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
                         <option value="">Toutes les catégories</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -33,11 +33,11 @@
                 
                 <!-- Items per page -->
                 <div class="w-full md:w-24">
-                    <select wire:model.live="perPage" class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
-                        <option value="12">12</option>
+                    <select wire:model.live="perPage" class="cursor-pointer block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
                         <option value="24">24</option>
                         <option value="48">48</option>
                         <option value="96">96</option>
+                        <option value="192">192</option>
                     </select>
                 </div>
             </div>
@@ -363,4 +363,17 @@
             </div>
         </div>
     @endif
+
+
+    <!-- États de chargement -->
+    <div wire:loading.flex class="fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 flex items-center space-x-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+            <div>
+                <p class="text-lg font-medium text-gray-900">Chargement en cours...</p>
+                <p class="text-sm text-gray-500">Traitement des données clients</p>
+            </div>
+        </div>
+    </div>
+    
 </div>

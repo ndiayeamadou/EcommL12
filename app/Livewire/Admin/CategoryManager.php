@@ -116,7 +116,7 @@ class CategoryManager extends Component
             ->with('parent', 'children')
             ->withCount('products')
             ->orderBy($this->sortBy, $this->sortDirection)
-            ->paginate(10);
+            ->paginate(18);
     }
 
     public function getParentCategoriesProperty()

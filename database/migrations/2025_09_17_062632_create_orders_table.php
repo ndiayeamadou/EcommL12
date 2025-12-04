@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('postal_code')->nullable();  // = pincode
             $table->string('address')->nullable();
-            $table->string('status_message')->nullable();
+            $table->string('status_message')->nullable();  // Ex: En cours de traitement, Terminé, Annulé, etc.
             $table->string('status_note')->nullable();
             $table->string('payment_mode')->nullable();
             $table->string('payment_id')->nullable();

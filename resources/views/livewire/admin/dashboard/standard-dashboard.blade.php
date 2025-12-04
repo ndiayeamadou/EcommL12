@@ -1,3 +1,4 @@
+<!-- resources\views\livewire\admin\dashboard\standard-dashboard.blade.php -->
 <div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6">
     <!-- Header -->
     <div class="mb-8">

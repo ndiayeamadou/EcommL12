@@ -107,7 +107,8 @@ class Category extends Model
     {
         if ($this->image) {
             //return asset('storage/categories/' . $this->image);
-            return asset('storage/' . $this->image);
+            //return asset('storage/' . $this->image); // not found in prod
+            return asset('myapp/storage/app/public/' . $this->image);
         }
         
         return 'https://via.placeholder.com/400x300/'. str_replace('#', '', $this->color) .'/ffffff?text=' . urlencode($this->name);

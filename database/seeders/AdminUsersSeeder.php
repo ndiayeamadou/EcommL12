@@ -210,7 +210,8 @@ class AdminUsersSeeder extends Seeder
     private function createSuperAdministrator(): void
     {
         $superAdmin = User::firstOrCreate(
-            ['email' => 'superadmin@beauteafricaine.com'],
+            //['email' => 'superadmin@beauteafricaine.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 //'name' => 'Super Administrateur',
                 'firstname' => 'Aziz',
@@ -218,7 +219,8 @@ class AdminUsersSeeder extends Seeder
                 'username' => 'aziz',
                 'type' => User::TYPE_ADMIN,
                 //'password' => Hash::make('SuperAdmin@2025!'),
-                'password' => Hash::make('766312388'),
+                //'password' => Hash::make('766312388'),
+                'password' => Hash::make('password'),
                 'email_verified_at' => now(),
             ]
         );

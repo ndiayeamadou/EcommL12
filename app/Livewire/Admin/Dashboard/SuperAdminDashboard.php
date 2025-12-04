@@ -59,16 +59,33 @@ class SuperAdminDashboard extends Component
         };
     }
 
+    /**
+     * Liste des statuts considérés comme annulés
+     */
+    private function getCancelledStatuses(): array
+    {
+        return ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'];
+    }
+
     private function getMainStats($dateFilter)
     {
+        // Calcul du CA (exclure les commandes annulées)
         $revenue = Order::where('orders.created_at', '>=', $dateFilter)
+            ->whereNotIn('orders.status_message', $this->getCancelledStatuses())
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->sum(DB::raw('order_items.price * order_items.quantity')) ?? 0;
 
-        $orders = Order::where('created_at', '>=', $dateFilter)->count();
+        // Nombre de commandes (exclure les annulées)
+        $orders = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', $this->getCancelledStatuses())
+            ->count();
+
+        // Nombre de clients uniques (exclure les commandes annulées)
         $customers = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', $this->getCancelledStatuses())
             ->distinct('user_id')
             ->count('user_id');
+
         $aov = $orders > 0 ? $revenue / $orders : 0;
 
         return [
@@ -95,7 +112,8 @@ class SuperAdminDashboard extends Component
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', function($join) use ($dateFilter) {
                 $join->on('order_items.order_id', '=', 'orders.id')
-                     ->where('orders.created_at', '>=', $dateFilter);
+                     ->where('orders.created_at', '>=', $dateFilter)
+                     ->whereNotIn('orders.status_message', $this->getCancelledStatuses());
             })
             ->groupBy('categories.id', 'categories.name', 'categories.color')
             ->orderByDesc('revenue')
@@ -112,6 +130,7 @@ class SuperAdminDashboard extends Component
             ->leftJoin('orders', 'users.id', '=', 'orders.user_id')
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
+            ->whereNotIn('orders.status_message', $this->getCancelledStatuses())
             ->groupBy('users.id', 'users.firstname', 'users.lastname', 'users.email')
             ->orderByDesc('total_spent')
             ->limit(8)
@@ -127,7 +146,8 @@ class SuperAdminDashboard extends Component
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', function($join) use ($dateFilter) {
                 $join->on('order_items.order_id', '=', 'orders.id')
-                     ->where('orders.created_at', '>=', $dateFilter);
+                     ->where('orders.created_at', '>=', $dateFilter)
+                     ->whereNotIn('orders.status_message', $this->getCancelledStatuses());
             })
             ->groupBy('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->orderByDesc('units_sold')
@@ -160,9 +180,17 @@ class SuperAdminDashboard extends Component
 
     private function getConversionMetrics($dateFilter)
     {
+        // Pour les conversions, on exclut aussi les commandes annulées
         $totalVisitors = User::where('created_at', '>=', $dateFilter)->count();
-        $totalOrders = Order::where('created_at', '>=', $dateFilter)->count();
+        
+        // Commandes non annulées uniquement
+        $totalOrders = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', $this->getCancelledStatuses())
+            ->count();
+            
+        // Clients ayant effectué des commandes non annulées
         $totalCustomers = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', $this->getCancelledStatuses())
             ->distinct('user_id')
             ->count('user_id');
 
@@ -181,6 +209,7 @@ class SuperAdminDashboard extends Component
             ")
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
+            ->whereNotIn('orders.status_message', $this->getCancelledStatuses())
             ->groupBy('period')
             ->orderBy('period')
             ->limit(10)

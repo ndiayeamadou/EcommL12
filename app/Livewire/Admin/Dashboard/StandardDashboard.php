@@ -77,10 +77,20 @@ class StandardDashboard extends Component
         };
     }
 
+    /**
+     * Méthode pour filtrer les commandes non annulées
+     */
+    private function excludeCancelledOrders($query)
+    {
+        return $query->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé']);
+    }
+
     private function getPersonalStats($dateFilter): array
     {
         $personalStats = Order::where('orders.created_at', '>=', $dateFilter)
             ->where('agent_id', $this->currentUser->id)
+            // Exclure les commandes annulées
+            ->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->selectRaw('
                 COUNT(DISTINCT orders.id) as order_count,
@@ -101,18 +111,29 @@ class StandardDashboard extends Component
             'aov' => $aov,
             'today_orders' => Order::whereDate('created_at', Carbon::today())
                 ->where('agent_id', $this->currentUser->id)
+                // Exclure les commandes annulées pour aujourd'hui aussi
+                ->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
                 ->count(),
         ];
     }
 
     private function getTeamStats($dateFilter): array
     {
+        // Calculer le CA de l'équipe (exclure les annulées)
         $teamRevenue = Order::join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
+            // Exclure les commandes annulées
+            ->whereNotIn('orders.status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->sum(DB::raw('order_items.price * order_items.quantity')) ?? 0;
 
-        $teamOrders = Order::where('created_at', '>=', $dateFilter)->count();
+        // Nombre de commandes de l'équipe (exclure les annulées)
+        $teamOrders = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
+            ->count();
+
+        // Nombre de clients uniques (exclure les commandes annulées)
         $teamCustomers = Order::where('created_at', '>=', $dateFilter)
+            ->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->distinct('user_id')
             ->count('user_id');
 
@@ -136,7 +157,7 @@ class StandardDashboard extends Component
         
         $contributionRate = $teamRevenue > 0 ? round(($personalRevenue / $teamRevenue) * 100, 1) : 0;
         
-        // Calcul du classement dans l'équipe
+        // Calcul du classement dans l'équipe (exclure les annulées)
         $teamRanking = $this->calculateTeamRanking($dateFilter);
         $userRank = $teamRanking['user_rank'] ?? null;
         $totalAgents = $teamRanking['total_agents'] ?? 0;
@@ -156,7 +177,9 @@ class StandardDashboard extends Component
             ->selectRaw('COALESCE(SUM(order_items.price * order_items.quantity), 0) as revenue')
             ->leftJoin('orders', function($join) use ($dateFilter) {
                 $join->on('users.id', '=', 'orders.agent_id')
-                     ->where('orders.created_at', '>=', $dateFilter);
+                     ->where('orders.created_at', '>=', $dateFilter)
+                     // Exclure les commandes annulées
+                     ->whereNotIn('orders.status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé']);
             })
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
             ->groupBy('users.id', 'users.firstname', 'users.lastname')
@@ -185,6 +208,8 @@ class StandardDashboard extends Component
             ->leftJoin('orders', 'users.id', '=', 'orders.user_id')
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
+            // Exclure les commandes annulées
+            ->whereNotIn('orders.status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->groupBy('users.id', 'users.firstname', 'users.lastname', 'users.email')
             ->orderByDesc('total_spent')
             ->limit(6)
@@ -200,7 +225,9 @@ class StandardDashboard extends Component
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', function($join) use ($dateFilter) {
                 $join->on('order_items.order_id', '=', 'orders.id')
-                     ->where('orders.created_at', '>=', $dateFilter);
+                     ->where('orders.created_at', '>=', $dateFilter)
+                     // Exclure les commandes annulées
+                     ->whereNotIn('orders.status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé']);
             })
             ->groupBy('products.id', 'products.name', 'products.sku', 'products.price', 'products.stock_quantity')
             ->orderByDesc('units_sold')
@@ -235,6 +262,8 @@ class StandardDashboard extends Component
     {
         return Order::with(['user', 'orderItems.product'])
             ->where('created_at', '>=', $dateFilter)
+            // Exclure les commandes annulées
+            ->whereNotIn('status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -263,6 +292,8 @@ class StandardDashboard extends Component
             ")
             ->leftJoin('order_items', 'orders.id', '=', 'order_items.order_id')
             ->where('orders.created_at', '>=', $dateFilter)
+            // Exclure les commandes annulées
+            ->whereNotIn('orders.status_message', ['Annulé', 'Annulée', 'Cancelled', 'Refused', 'Refusé'])
             ->groupBy('period')
             ->orderBy('period')
             ->limit(7)

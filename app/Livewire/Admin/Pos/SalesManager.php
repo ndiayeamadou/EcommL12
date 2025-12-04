@@ -21,7 +21,7 @@ class SalesManager extends Component
     public $sortDirection = 'desc';
     public $categoryFilter = '';
     public $statusFilter = '';
-    public $perPage = 12;
+    public $perPage = 24;
     
     protected $queryString = [
         'search' => ['except' => ''],
@@ -29,7 +29,7 @@ class SalesManager extends Component
         'sortDirection' => ['except' => 'desc'],
         'categoryFilter' => ['except' => ''],
         'statusFilter' => ['except' => ''],
-        'perPage' => ['except' => 12],
+        'perPage' => ['except' => 24],
     ];
 
     // Cart properties

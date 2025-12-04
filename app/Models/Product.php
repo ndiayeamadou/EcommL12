@@ -167,12 +167,14 @@ class Product extends Model
     {
         $primaryImage = $this->primaryImage;
         if ($primaryImage) {
-            return asset('storage/' . $primaryImage->image_path);
+            //return asset('storage/' . $primaryImage->image_path); // not found in prod
+            return asset('myapp/storage/app/public/' . $primaryImage->image_path);
         }
         
         $firstImage = $this->images()->first();
         if ($firstImage) {
-            return asset('storage/' . $firstImage->image_path);
+            //return asset('storage/' . $firstImage->image_path); // not found in prod
+            return asset('myapp/storage/app/public/' . $firstImage->image_path);
         }
         
         return '/images/default-product-picture.png';

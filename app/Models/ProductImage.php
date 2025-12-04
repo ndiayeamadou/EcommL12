@@ -30,7 +30,8 @@ class ProductImage extends Model
     // Accessors
     public function getImageUrlAttribute()
     {
-        return asset('storage/' . $this->image_path);
+        //return asset('storage/' . $this->image_path); // not found in prod
+        return asset('myapp/storage/app/public/' . $this->image_path);
     }
 
     // Methods
